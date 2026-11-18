@@ -1,0 +1,143 @@
+<script>
+console.log('CINEMANIAK 1 : le script démarre');
+(function () {
+  const parent = window.parent;
+  const doc = parent.document;
+  console.log('CINEMANIAK 2 : accès à la page OK');
+  if (parent.__introCinemaniak) { console.log('CINEMANIAK : déjà jouée, on saute'); return; }
+  parent.__introCinemaniak = true;
+
+  const dossier = parent.location.origin + '/app/static/';
+
+  const css = `
+#intro-cm { position: fixed; inset: 0; z-index: 999999; background: #000; overflow: hidden; animation: cm-fin 0.9s ease 6s forwards; }
+@keyframes cm-fin { to { opacity: 0; visibility: hidden; } }
+#intro-cm .fond { position: absolute; inset: -5%; background: url('${dossier}hacker.jpg') center / cover no-repeat; filter: blur(30px) brightness(0.3); }
+#intro-cm .scene { position: absolute; left: 50%; top: 50%; width: min(100vw, 150vh); height: min(66.67vw, 100vh); transform-origin: 65.1% 45.35%; opacity: 0; transform: translate(-50%, -50%) scale(1.06); animation: cm-apparition 1s ease forwards, cm-travelling 4s ease-out 0.3s forwards, cm-plongeon 1.2s cubic-bezier(0.7, 0, 0.3, 1) 4.4s forwards; }
+@keyframes cm-apparition { to { opacity: 1; } }
+@keyframes cm-travelling { from { transform: translate(-50%, -50%) scale(1.06); } to { transform: translate(-52.7%, -49.3%) scale(1.2); } }
+@keyframes cm-plongeon { from { transform: translate(-52.7%, -49.3%) scale(1.2); } to { transform: translate(-65.1%, -45.35%) scale(4.6); } }
+#intro-cm video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+#intro-cm .plaque { position: absolute; left: 51.890%; top: 27.835%; width: 25.945%; height: 34.665%; pointer-events: none; }
+#intro-cm .lumiere { position: absolute; inset: 0; mix-blend-mode: screen; pointer-events: none; background: radial-gradient(ellipse 40% 50% at 65.1% 45.35%, rgba(0, 255, 65, 0.18), transparent 70%); animation: cm-vacille 3s infinite; }
+@keyframes cm-vacille { 0%, 100% { opacity: 0.9; } 20% { opacity: 0.55; } 22% { opacity: 1; } 60% { opacity: 0.75; } 62% { opacity: 0.95; } }
+#intro-cm .logo-flou { position: absolute; left: 59.6%; top: 62%; width: 3.6%; height: 2.2%; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); border-radius: 30%; }
+#intro-cm .filigrane { position: absolute; left: 83.5%; top: 91%; width: 16%; height: 8%; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+#intro-cm .ecran { position: absolute; left: 0; top: 0; transform-origin: 0 0; box-sizing: border-box; padding: 1.6em 1.7em; border-radius: 6% / 9%; overflow: hidden; mix-blend-mode: screen; font-family: 'Share Tech Mono', monospace; color: #5dff86; text-shadow: 0 0 0.35em #00FF41, 0 0 1em rgba(0, 255, 65, 0.55); background: radial-gradient(ellipse at 50% 50%, rgba(0, 255, 65, 0.10), rgba(0, 255, 65, 0.03) 60%, transparent 100%); animation: cm-phosphore 0.12s infinite; }
+@keyframes cm-phosphore { 50% { opacity: 0.93; } }
+#intro-cm .ecran::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0 1px, transparent 1px 3px); }
+#intro-cm .ligne { white-space: nowrap; overflow: hidden; width: 0; margin-bottom: 0.8em; }
+#intro-cm .l1 { animation: cm-taper 1.2s steps(27) 0.8s forwards, cm-eteint 0.2s 3.9s forwards; }
+#intro-cm .l2 { animation: cm-taper 0.9s steps(25) 2.2s forwards, cm-eteint 0.2s 3.9s forwards; }
+#intro-cm .l3 { animation: cm-taper 0.5s steps(23) 3.3s forwards, cm-eteint 0.2s 3.9s forwards; }
+@keyframes cm-taper { to { width: 100%; } }
+@keyframes cm-eteint { to { opacity: 0; } }
+#intro-cm .granted { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; animation: cm-clignote 0.2s steps(1) 4s 5 forwards; }
+#intro-cm .granted span { font-size: 1.35em; letter-spacing: 0.15em; border: 0.1em solid #00FF41; padding: 0.4em 0.8em; box-shadow: 0 0 1em #00FF41, inset 0 0 0.8em rgba(0, 255, 65, 0.4); animation: cm-glitch 0.3s steps(2) infinite; }
+@keyframes cm-clignote { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes cm-glitch { 0% { text-shadow: 2px 0 #ff0040, -2px 0 #00e5ff, 0 0 0.5em #00FF41; transform: translate(0, 0); } 50% { text-shadow: -2px 0 #ff0040, 2px 0 #00e5ff, 0 0 0.5em #00FF41; transform: translate(1px, -1px); } }
+#intro-cm .grain { position: absolute; inset: -50%; pointer-events: none; opacity: 0.16; mix-blend-mode: overlay; animation: cm-grain 0.5s steps(4) infinite; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.6'/></svg>"); }
+@keyframes cm-grain { 0% { transform: translate(0, 0); } 25% { transform: translate(-5%, 3%); } 50% { transform: translate(4%, -4%); } 75% { transform: translate(-3%, -2%); } 100% { transform: translate(2%, 5%); } }
+#intro-cm .balayage { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 0 1px, transparent 1px 3px); }
+#intro-cm .vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.85) 100%); }
+#intro-cm .bande { position: absolute; left: 0; right: 0; height: 8vh; background: #000; z-index: 3; animation: cm-bande 1s ease 4.4s forwards; }
+#intro-cm .haut { top: 0; }
+#intro-cm .bas { bottom: 0; }
+@keyframes cm-bande { to { height: 0; } }
+#intro-cm .lieu { position: absolute; left: 4vw; bottom: 11vh; z-index: 4; font-family: 'Share Tech Mono', monospace; color: #E8FFE8; letter-spacing: 0.4em; font-size: 1.6vh; opacity: 0; animation: cm-lieu 3.6s ease 0.6s forwards; }
+@keyframes cm-lieu { 15% { opacity: 0.85; } 80% { opacity: 0.85; } 100% { opacity: 0; } }
+#intro-cm .flash { position: absolute; inset: 0; background: #00FF41; opacity: 0; pointer-events: none; z-index: 5; animation: cm-flash 0.6s ease 5.4s forwards; }
+@keyframes cm-flash { 0% { opacity: 0; } 35% { opacity: 0.85; } 100% { opacity: 0; } }
+`;
+
+  const style = doc.createElement('style');
+  style.textContent = css;
+  doc.head.appendChild(style);
+
+  const intro = doc.createElement('div');
+  intro.id = 'intro-cm';
+  intro.innerHTML = `
+<div class="fond"></div>
+<div class="scene">
+  <video src="${dossier}hacker.mp4" poster="${dossier}hacker.jpg" muted playsinline preload="auto"></video>
+  <img class="plaque" src="${dossier}ecran_propre.png" alt="">
+  <div class="lumiere"></div>
+  <div class="logo-flou"></div>
+  <div class="filigrane"></div>
+  <div class="ecran">
+    <div class="ligne l1">&gt; IDENTIFIANT : team.maniak</div>
+    <div class="ligne l2">&gt; MOT DE PASSE : &bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div>
+    <div class="ligne l3">&gt; connexion en cours...</div>
+    <div class="granted"><span>ACCESS GRANTED</span></div>
+  </div>
+</div>
+<div class="grain"></div>
+<div class="balayage"></div>
+<div class="vignette"></div>
+<div class="bande haut"></div>
+<div class="bande bas"></div>
+<div class="lieu">ANGERS &middot; <span class="heure"></span></div>
+<div class="flash"></div>`;
+  doc.body.appendChild(intro);
+  console.log('CINEMANIAK 3 : intro ajoutée à la page');
+
+  // L'heure réelle du visiteur
+  const maintenant = new Date();
+  const hh = String(maintenant.getHours()).padStart(2, '0');
+  const mm = String(maintenant.getMinutes()).padStart(2, '0');
+  intro.querySelector('.heure').textContent = hh + ':' + mm;
+
+  const video = intro.querySelector('video');
+  video.muted = true;
+  video.play().catch(() => {});
+
+  // On colle le texte sur l'écran en suivant sa perspective
+  const scene = intro.querySelector('.scene');
+  const ecran = intro.querySelector('.ecran');
+  const coins = [[53.18, 28.61], [77.32, 28.87], [75.26, 61.73], [52.23, 58.12]];
+
+  function resoudre(A, b) {
+    const n = b.length;
+    for (let i = 0; i < n; i++) {
+      let p = i;
+      for (let r = i + 1; r < n; r++) if (Math.abs(A[r][i]) > Math.abs(A[p][i])) p = r;
+      [A[i], A[p]] = [A[p], A[i]]; [b[i], b[p]] = [b[p], b[i]];
+      for (let r = i + 1; r < n; r++) {
+        const f = A[r][i] / A[i][i];
+        for (let c = i; c < n; c++) A[r][c] -= f * A[i][c];
+        b[r] -= f * b[i];
+      }
+    }
+    const x = new Array(n).fill(0);
+    for (let i = n - 1; i >= 0; i--) {
+      let s = b[i];
+      for (let c = i + 1; c < n; c++) s -= A[i][c] * x[c];
+      x[i] = s / A[i][i];
+    }
+    return x;
+  }
+
+  function placerEcran() {
+    const W = scene.offsetWidth, H = scene.offsetHeight;
+    const pts = coins.map(([x, y]) => [x / 100 * W, y / 100 * H]);
+    const w = Math.hypot(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]);
+    const h = Math.hypot(pts[3][0] - pts[0][0], pts[3][1] - pts[0][1]);
+    const src = [[0, 0], [w, 0], [w, h], [0, h]];
+    const A = [], b = [];
+    for (let i = 0; i < 4; i++) {
+      const [x, y] = src[i], [u, v] = pts[i];
+      A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u);
+      A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v);
+    }
+    const k = resoudre(A, b);
+    ecran.style.width = w + 'px';
+    ecran.style.height = h + 'px';
+    ecran.style.fontSize = (w * 0.047) + 'px';
+    ecran.style.transform = `matrix3d(${k[0]},${k[3]},0,${k[6]},${k[1]},${k[4]},0,${k[7]},0,0,1,0,${k[2]},${k[5]},0,1)`;
+  }
+  placerEcran();
+  parent.addEventListener('resize', placerEcran);
+
+  setTimeout(() => { intro.remove(); style.remove(); parent.removeEventListener('resize', placerEcran); }, 7200);
+})();
+</script>
