@@ -1,154 +1,174 @@
 <script>
-console.log('CINEMANIAK 1 : le script démarre');
+// Intro du Cinémaniak : une spectatrice se branche à la Matrice depuis la salle de projection
 (function () {
   const parent = window.parent;
   const doc = parent.document;
-  console.log('CINEMANIAK 2 : accès à la page OK');
-  if (parent.__introCinemaniak) { console.log('CINEMANIAK : déjà jouée, on saute'); return; }
+  if (parent.__introCinemaniak) return;
   parent.__introCinemaniak = true;
 
   const dossier = parent.location.origin + '/app/static/';
+  const POLICE = "'Matrix Sans Video', monospace";
 
   const css = `
-#cm-porte { position: fixed; inset: 0; z-index: 1000000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; cursor: pointer; font-family: 'VT323', monospace; color: #00FF41; }
+#cm-porte { position: fixed; inset: 0; z-index: 1000000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; cursor: pointer; font-family: ${POLICE}; color: #00FF41; }
 #cm-porte::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(0, 255, 65, 0.05) 0 1px, transparent 1px 3px); }
-#cm-porte .haut { font-size: 20px; letter-spacing: 0.4em; color: #7CFC9A; opacity: 0.8; }
-#cm-porte .bouton { font-size: min(6vw, 54px); letter-spacing: 0.12em; padding: 14px 34px; border: 2px solid #00FF41; text-shadow: 0 0 12px #00FF41; box-shadow: 0 0 30px rgba(0, 255, 65, 0.4), inset 0 0 25px rgba(0, 255, 65, 0.15); animation: cm-porte 1.4s ease-in-out infinite; transition: background 0.2s, color 0.2s; }
+#cm-porte .haut { font-size: 18px; letter-spacing: 0.4em; color: #7CFC9A; opacity: 0.8; }
+#cm-porte .bouton { font-size: min(6vw, 48px); letter-spacing: 0.12em; padding: 14px 34px; border: 2px solid #00FF41; text-shadow: 0 0 12px #00FF41; box-shadow: 0 0 30px rgba(0, 255, 65, 0.4), inset 0 0 25px rgba(0, 255, 65, 0.15); animation: cm-porte 1.4s ease-in-out infinite; transition: background 0.2s, color 0.2s; }
 #cm-porte:hover .bouton { background: #00FF41; color: #000; text-shadow: none; }
-#cm-porte .bas { font-size: 18px; letter-spacing: 0.3em; color: #7CFC9A; opacity: 0.6; }
+#cm-porte .bas { font-size: 16px; letter-spacing: 0.3em; color: #7CFC9A; opacity: 0.6; }
 @keyframes cm-porte { 50% { box-shadow: 0 0 55px rgba(0, 255, 65, 0.75), inset 0 0 25px rgba(0, 255, 65, 0.25); } }
 #cm-porte.part { animation: cm-part 0.25s steps(2) forwards; }
 @keyframes cm-part { 50% { filter: invert(1); } 100% { opacity: 0; } }
+
 #intro-cm { position: fixed; inset: 0; z-index: 999999; background: #000; overflow: hidden; animation: cm-fin 0.9s ease 6s forwards; }
 @keyframes cm-fin { to { opacity: 0; visibility: hidden; } }
-#intro-cm .fond { position: absolute; inset: -5%; background: url('${dossier}hacker.jpg') center / cover no-repeat; filter: blur(30px) brightness(0.3); }
-#intro-cm .scene { position: absolute; left: 50%; top: 50%; width: min(100vw, 150vh); height: min(66.67vw, 100vh); transform-origin: 65.1% 45.35%; opacity: 0; transform: translate(-50%, -50%) scale(1.06); animation: cm-apparition 1s ease forwards, cm-travelling 4s ease-out 0.3s forwards, cm-plongeon 1.2s cubic-bezier(0.7, 0, 0.3, 1) 4.4s forwards; }
+#intro-cm .fond { position: absolute; inset: -5%; background: url('${dossier}branchement_propre.jpg') center / cover no-repeat; filter: blur(30px) brightness(0.3); }
+#intro-cm .scene { position: absolute; left: 50%; top: 50%; width: min(100vw, 150vh); height: min(66.67vw, 100vh);
+  transform-origin: 67.3% 40.3%; transform: translate(-50%, -50%) scale(1.04); opacity: 0;
+  animation: cm-apparition 1s ease forwards, cm-approche 4.4s ease-out forwards, cm-plongeon 1.15s cubic-bezier(0.7, 0, 0.3, 1) 4.45s forwards; }
 @keyframes cm-apparition { to { opacity: 1; } }
-@keyframes cm-travelling { from { transform: translate(-50%, -50%) scale(1.06); } to { transform: translate(-52.7%, -49.3%) scale(1.2); } }
-@keyframes cm-plongeon { from { transform: translate(-52.7%, -49.3%) scale(1.2); } to { transform: translate(-65.1%, -45.35%) scale(4.6); } }
-#intro-cm video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
-#intro-cm .plaque { position: absolute; left: 51.890%; top: 27.835%; width: 25.945%; height: 34.665%; pointer-events: none; }
-#intro-cm .lumiere { position: absolute; inset: 0; mix-blend-mode: screen; pointer-events: none; background: radial-gradient(ellipse 40% 50% at 65.1% 45.35%, rgba(0, 255, 65, 0.18), transparent 70%); animation: cm-vacille 3s infinite; }
-@keyframes cm-vacille { 0%, 100% { opacity: 0.9; } 20% { opacity: 0.55; } 22% { opacity: 1; } 60% { opacity: 0.75; } 62% { opacity: 0.95; } }
-#intro-cm .logo-flou { position: absolute; left: 59.6%; top: 62%; width: 3.6%; height: 2.2%; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); border-radius: 30%; }
-#intro-cm .filigrane { position: absolute; left: 83.5%; top: 91%; width: 16%; height: 8%; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-#intro-cm .ecran { position: absolute; left: 0; top: 0; transform-origin: 0 0; box-sizing: border-box; padding: 1.6em 1.7em; border-radius: 6% / 9%; overflow: hidden; mix-blend-mode: screen; font-family: 'VT323', monospace; color: #5dff86; text-shadow: 0 0 0.35em #00FF41, 0 0 1em rgba(0, 255, 65, 0.55); background: radial-gradient(ellipse at 50% 50%, rgba(0, 255, 65, 0.10), rgba(0, 255, 65, 0.03) 60%, transparent 100%); animation: cm-phosphore 0.12s infinite; }
-@keyframes cm-phosphore { 50% { opacity: 0.93; } }
-#intro-cm .ecran::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0 1px, transparent 1px 3px); }
-#intro-cm .ligne { white-space: nowrap; overflow: hidden; width: 0; margin-bottom: 0.8em; }
-#intro-cm .l1 { animation: cm-taper 1.2s steps(27) 0.8s forwards, cm-eteint 0.2s 3.9s forwards; }
-#intro-cm .l2 { animation: cm-taper 0.9s steps(25) 2.2s forwards, cm-eteint 0.2s 3.9s forwards; }
-#intro-cm .l3 { animation: cm-taper 0.5s steps(23) 3.3s forwards, cm-eteint 0.2s 3.9s forwards; }
-@keyframes cm-taper { to { width: 100%; } }
-@keyframes cm-eteint { to { opacity: 0; } }
-#intro-cm .granted { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; animation: cm-clignote 0.2s steps(1) 4s 5 forwards; }
-#intro-cm .granted span { font-size: 1.35em; letter-spacing: 0.15em; border: 0.1em solid #00FF41; padding: 0.4em 0.8em; box-shadow: 0 0 1em #00FF41, inset 0 0 0.8em rgba(0, 255, 65, 0.4); animation: cm-glitch 0.3s steps(2) infinite; }
-@keyframes cm-clignote { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
-@keyframes cm-glitch { 0% { text-shadow: 2px 0 #ff0040, -2px 0 #00e5ff, 0 0 0.5em #00FF41; transform: translate(0, 0); } 50% { text-shadow: -2px 0 #ff0040, 2px 0 #00e5ff, 0 0 0.5em #00FF41; transform: translate(1px, -1px); } }
-#intro-cm .grain { position: absolute; inset: -50%; pointer-events: none; opacity: 0.16; mix-blend-mode: overlay; animation: cm-grain 0.5s steps(4) infinite; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.6'/></svg>"); }
-@keyframes cm-grain { 0% { transform: translate(0, 0); } 25% { transform: translate(-5%, 3%); } 50% { transform: translate(4%, -4%); } 75% { transform: translate(-3%, -2%); } 100% { transform: translate(2%, 5%); } }
-#intro-cm .balayage { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 0 1px, transparent 1px 3px); }
-#intro-cm .vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.85) 100%); }
-#intro-cm .bande { position: absolute; left: 0; right: 0; height: 8vh; background: #000; z-index: 3; animation: cm-bande 1s ease 4.4s forwards; }
-#intro-cm .haut { top: 0; }
-#intro-cm .bas { bottom: 0; }
+@keyframes cm-approche { from { transform: translate(-50%, -50%) scale(1.04); } to { transform: translate(-52.6%, -50.3%) scale(1.16); } }
+@keyframes cm-plongeon { from { transform: translate(-52.6%, -50.3%) scale(1.16); } to { transform: translate(-67.3%, -40.3%) scale(7); } }
+#intro-cm .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+#intro-cm .scene.secousse .photo, #intro-cm .scene.secousse svg { animation: cm-secousse 0.32s steps(2); }
+@keyframes cm-secousse { 25% { transform: translate(-6px, 3px); filter: brightness(1.6) hue-rotate(20deg); } 50% { transform: translate(5px, -2px); } 75% { transform: translate(-2px, 1px); filter: brightness(1.2); } }
+#intro-cm svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+#intro-cm .faisceau { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.25;
+  background: radial-gradient(ellipse 9% 7% at 67.3% 40.3%, rgba(210, 255, 220, 0.95), rgba(0, 255, 65, 0.4) 40%, transparent 75%),
+              linear-gradient(196deg, transparent 38%, rgba(0, 255, 65, 0.18) 46%, transparent 55%); }
+#intro-cm .scene.branche .faisceau { animation: cm-faisceau 0.18s steps(2) 6, cm-fort 0.6s 1.1s forwards; }
+@keyframes cm-faisceau { 50% { opacity: 0.9; } }
+@keyframes cm-fort { to { opacity: 0.85; } }
+#intro-cm .ecrans { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0; }
+#intro-cm .scene.branche .ecrans { animation: cm-ecrans 0.12s steps(2) infinite; }
+@keyframes cm-ecrans { 0% { opacity: 0.15; } 50% { opacity: 0.55; } }
+#intro-cm .eclair { position: absolute; left: 37.5%; top: 39.8%; width: 16%; aspect-ratio: 1; transform: translate(-50%, -50%) scale(0.2); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(232, 255, 232, 1), rgba(0, 255, 65, 0.7) 25%, transparent 65%); mix-blend-mode: screen; opacity: 0; }
+#intro-cm .scene.secousse .eclair { animation: cm-eclair 0.7s ease-out; }
+@keyframes cm-eclair { 15% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8); } }
+#intro-cm canvas.pluie { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: screen; opacity: 0; transition: opacity 1.4s; }
+#intro-cm canvas.pluie.visible { opacity: 0.6; }
+#intro-cm .granted { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); z-index: 6; text-align: center; opacity: 0; pointer-events: none;
+  font-family: ${POLICE}; font-size: min(7vw, 84px); letter-spacing: 0.18em; color: #E8FFE8; text-shadow: 0 0 14px #00FF41, 0 0 50px rgba(0, 255, 65, 0.8); animation: cm-granted 0.2s steps(1) 4.05s 4 forwards; }
+#intro-cm .granted span { display: inline-block; padding: 8px 28px; border: 2px solid #00FF41; background: rgba(0, 0, 0, 0.55); box-shadow: 0 0 30px rgba(0, 255, 65, 0.6); animation: cm-glitch 0.3s steps(2) infinite; }
+@keyframes cm-granted { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes cm-glitch { 0% { text-shadow: 3px 0 #ff0040, -3px 0 #00e5ff, 0 0 14px #00FF41; } 50% { text-shadow: -3px 0 #ff0040, 3px 0 #00e5ff, 0 0 14px #00FF41; transform: translate(2px, -1px); } }
+#intro-cm .console { position: absolute; left: 4vw; bottom: 12vh; z-index: 8; font-family: ${POLICE}; color: #7CFC9A; font-size: 2.1vh; letter-spacing: 0.15em; line-height: 1.6; text-shadow: 0 0 8px #00FF41; animation: cm-console-fin 0.3s 4.3s forwards; }
+#intro-cm .console div { white-space: nowrap; overflow: hidden; width: 0; }
+#intro-cm .console .c1 { animation: cm-tape 0.7s steps(28) 0.5s forwards; }
+#intro-cm .console .c2 { animation: cm-tape 0.6s steps(26) 1.1s forwards; }
+#intro-cm .console .c3 { animation: cm-tape 0.6s steps(30) 2.35s forwards; color: #E8FFE8; }
+#intro-cm .console .c4 { animation: cm-tape 0.5s steps(24) 3.3s forwards; }
+@keyframes cm-tape { to { width: 100%; } }
+@keyframes cm-console-fin { to { opacity: 0; } }
+#intro-cm .grain { position: absolute; inset: -50%; pointer-events: none; opacity: 0.14; mix-blend-mode: overlay; z-index: 4; animation: cm-grain 0.5s steps(4) infinite;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.6'/></svg>"); }
+@keyframes cm-grain { 0% { transform: translate(0, 0); } 25% { transform: translate(-5%, 3%); } 50% { transform: translate(4%, -4%); } 75% { transform: translate(-3%, -2%); } }
+#intro-cm .balayage { position: absolute; inset: 0; pointer-events: none; z-index: 4; background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px); }
+#intro-cm .vignette { position: absolute; inset: 0; pointer-events: none; z-index: 4; background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.85) 100%); }
+#intro-cm .bande { position: absolute; left: 0; right: 0; height: 8vh; background: #000; z-index: 7; animation: cm-bande 1s ease 4.45s forwards; }
+#intro-cm .bande.haut { top: 0; } #intro-cm .bande.bas { bottom: 0; }
 @keyframes cm-bande { to { height: 0; } }
-#intro-cm .lieu { position: absolute; left: 4vw; bottom: 11vh; z-index: 4; font-family: 'VT323', monospace; color: #E8FFE8; letter-spacing: 0.4em; font-size: 2.2vh; opacity: 0; animation: cm-lieu 3.6s ease 0.6s forwards; }
+#intro-cm .lieu { position: absolute; right: 4vw; bottom: 11vh; z-index: 8; font-family: ${POLICE}; color: #E8FFE8; letter-spacing: 0.35em; font-size: 1.9vh; text-align: right; opacity: 0; animation: cm-lieu 3.6s ease 0.4s forwards; }
 @keyframes cm-lieu { 15% { opacity: 0.85; } 80% { opacity: 0.85; } 100% { opacity: 0; } }
-#intro-cm .flash { position: absolute; inset: 0; background: #00FF41; opacity: 0; pointer-events: none; z-index: 5; animation: cm-flash 0.6s ease 5.4s forwards; }
-@keyframes cm-flash { 0% { opacity: 0; } 35% { opacity: 0.85; } 100% { opacity: 0; } }
+#intro-cm .flash { position: absolute; inset: 0; background: #00FF41; opacity: 0; pointer-events: none; z-index: 9; animation: cm-flash 0.6s ease 5.45s forwards; }
+@keyframes cm-flash { 0% { opacity: 0; } 35% { opacity: 0.9; } 100% { opacity: 0; } }
 `;
 
   const style = doc.createElement('style');
   style.textContent = css;
   doc.head.appendChild(style);
 
+  // Le tracé du câble sur l'image (en pixels de l'image d'origine 1248 x 832), de la prise vers le bas
+  const CABLE = [[468, 331], [520, 335], [567, 359], [598, 400], [614, 458], [640, 515], [645, 583], [632, 645], [614, 718], [608, 790], [604, 832]];
+  function chemin(points) {
+    let d = 'M' + points[0].join(' ');
+    for (let i = 1; i < points.length - 1; i++) {
+      const [x, y] = points[i], [x2, y2] = points[i + 1];
+      d += ` Q${x} ${y} ${(x + x2) / 2} ${(y + y2) / 2}`;
+    }
+    return d + ' L' + points[points.length - 1].join(' ');
+  }
+  const trace = chemin(CABLE.slice().reverse());
+
   const intro = doc.createElement('div');
   intro.id = 'intro-cm';
   intro.innerHTML = `
 <div class="fond"></div>
 <div class="scene">
-  <video src="${dossier}hacker.mp4" poster="${dossier}hacker.jpg" muted playsinline preload="auto"></video>
-  <img class="plaque" src="${dossier}ecran_propre.png" alt="">
-  <div class="lumiere"></div>
-  <div class="logo-flou"></div>
-  <div class="filigrane"></div>
-  <div class="ecran">
-    <div class="ligne l1">&gt; IDENTIFIANT : team.maniak</div>
-    <div class="ligne l2">&gt; MOT DE PASSE : &bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div>
-    <div class="ligne l3">&gt; connexion en cours...</div>
-    <div class="granted"><span>ACCESS GRANTED</span></div>
-  </div>
+  <img class="photo" src="${dossier}branchement_propre.jpg" alt="">
+  <div class="ecrans" style="background:
+     radial-gradient(ellipse 8% 9% at 88% 26%, rgba(0,255,65,0.7), transparent 70%),
+     radial-gradient(ellipse 7% 8% at 88% 50%, rgba(0,255,65,0.7), transparent 70%),
+     radial-gradient(ellipse 4% 5% at 63% 52%, rgba(0,255,65,0.7), transparent 70%);"></div>
+  <div class="faisceau"></div>
+  <svg viewBox="0 0 1248 832" preserveAspectRatio="none">
+    <defs><filter id="cm-lueur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+    <path class="halo" d="${trace}" fill="none" stroke="#00FF41" stroke-width="22" stroke-linecap="round" filter="url(#cm-lueur)" opacity="0"/>
+    <path class="impulsion" d="${trace}" fill="none" stroke="#E8FFE8" stroke-width="7" stroke-linecap="round" opacity="0"/>
+  </svg>
+  <div class="eclair"></div>
+  <canvas class="pluie"></canvas>
 </div>
-<div class="grain"></div>
-<div class="balayage"></div>
-<div class="vignette"></div>
-<div class="bande haut"></div>
-<div class="bande bas"></div>
-<div class="lieu">ANGERS &middot; <span class="heure"></span></div>
+<div class="granted"><span>ACCESS GRANTED</span></div>
+<div class="console">
+  <div class="c1">&gt; spectateur : fauteuil 07</div>
+  <div class="c2">&gt; liaison neurale ........</div>
+  <div class="c3">&gt; CONNEXION ÉTABLIE ✔</div>
+  <div class="c4">&gt; chargement du film...</div>
+</div>
+<div class="grain"></div><div class="balayage"></div><div class="vignette"></div>
+<div class="bande haut"></div><div class="bande bas"></div>
+<div class="lieu">ANGERS &middot; <span class="heure"></span><br>SALLE DE PROJECTION 03</div>
 <div class="flash"></div>`;
+
   function suite() {
-  doc.body.appendChild(intro);
-  console.log('CINEMANIAK 3 : intro ajoutée à la page');
+    doc.body.appendChild(intro);
+    const maintenant = new Date();
+    intro.querySelector('.heure').textContent = String(maintenant.getHours()).padStart(2, '0') + ':' + String(maintenant.getMinutes()).padStart(2, '0');
 
-  // L'heure réelle du visiteur
-  const maintenant = new Date();
-  const hh = String(maintenant.getHours()).padStart(2, '0');
-  const mm = String(maintenant.getMinutes()).padStart(2, '0');
-  intro.querySelector('.heure').textContent = hh + ':' + mm;
+    const scene = intro.querySelector('.scene');
+    const impulsion = intro.querySelector('.impulsion'), halo = intro.querySelector('.halo');
+    const longueur = impulsion.getTotalLength();
 
-  const video = intro.querySelector('video');
-  video.muted = true;
-  video.play().catch(() => {});
+    // 1. Une impulsion de lumière verte remonte le câble jusqu'à la nuque
+    [impulsion, halo].forEach((p, k) => {
+      const trait = k ? 160 : 90;
+      p.setAttribute('stroke-dasharray', trait + ' ' + longueur * 2);
+      p.animate([{ strokeDashoffset: trait, opacity: 0 }, { opacity: 1, offset: 0.1 }, { strokeDashoffset: -longueur + 30, opacity: 1 }],
+                { duration: 1200, delay: 1000, easing: 'cubic-bezier(.5,0,.8,1)', fill: 'forwards' });
+    });
+    // 2. La connexion se verrouille : secousse, éclair, le câble reste allumé
+    parent.setTimeout(() => {
+      scene.classList.add('secousse', 'branche');
+      halo.getAnimations().forEach(a => a.cancel());
+      impulsion.getAnimations().forEach(a => a.cancel());
+      halo.setAttribute('stroke-dasharray', 'none'); halo.setAttribute('opacity', '0.35');
+    }, 2220);
+    parent.setTimeout(() => scene.classList.remove('secousse'), 2600);
 
-  // On colle le texte sur l'écran en suivant sa perspective
-  const scene = intro.querySelector('.scene');
-  const ecran = intro.querySelector('.ecran');
-  const coins = [[53.18, 28.61], [77.32, 28.87], [75.26, 61.73], [52.23, 58.12]];
+    // 3. La pluie de code envahit la salle
+    const toile = intro.querySelector('canvas.pluie'), ctx = toile.getContext('2d');
+    toile.width = 1248; toile.height = 832;
+    const signes = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ01';
+    const taille = 18, colonnes = Math.ceil(1248 / taille);
+    const gouttes = Array(colonnes).fill(0).map(() => Math.random() * -50);
+    let pluie = 0;
+    parent.setTimeout(() => {
+      toile.classList.add('visible');
+      pluie = parent.setInterval(() => {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.09)'; ctx.fillRect(0, 0, 1248, 832);
+        ctx.font = taille + 'px "Katakana Matrix", monospace';
+        gouttes.forEach((y, i) => {
+          ctx.fillStyle = Math.random() > 0.95 ? '#E8FFE8' : '#00FF41';
+          ctx.save(); ctx.translate(i * taille + taille, y * taille); ctx.scale(-1, 1);
+          ctx.fillText(signes[Math.floor(Math.random() * signes.length)], 0, 0); ctx.restore();
+          gouttes[i] = (y * taille > 832 && Math.random() > 0.96) ? 0 : y + 1;
+        });
+      }, 40);
+    }, 2500);
 
-  function resoudre(A, b) {
-    const n = b.length;
-    for (let i = 0; i < n; i++) {
-      let p = i;
-      for (let r = i + 1; r < n; r++) if (Math.abs(A[r][i]) > Math.abs(A[p][i])) p = r;
-      [A[i], A[p]] = [A[p], A[i]]; [b[i], b[p]] = [b[p], b[i]];
-      for (let r = i + 1; r < n; r++) {
-        const f = A[r][i] / A[i][i];
-        for (let c = i; c < n; c++) A[r][c] -= f * A[i][c];
-        b[r] -= f * b[i];
-      }
-    }
-    const x = new Array(n).fill(0);
-    for (let i = n - 1; i >= 0; i--) {
-      let s = b[i];
-      for (let c = i + 1; c < n; c++) s -= A[i][c] * x[c];
-      x[i] = s / A[i][i];
-    }
-    return x;
-  }
-
-  function placerEcran() {
-    const W = scene.offsetWidth, H = scene.offsetHeight;
-    const pts = coins.map(([x, y]) => [x / 100 * W, y / 100 * H]);
-    const w = Math.hypot(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]);
-    const h = Math.hypot(pts[3][0] - pts[0][0], pts[3][1] - pts[0][1]);
-    const src = [[0, 0], [w, 0], [w, h], [0, h]];
-    const A = [], b = [];
-    for (let i = 0; i < 4; i++) {
-      const [x, y] = src[i], [u, v] = pts[i];
-      A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u);
-      A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v);
-    }
-    const k = resoudre(A, b);
-    ecran.style.width = w + 'px';
-    ecran.style.height = h + 'px';
-    ecran.style.fontSize = (w * 0.07) + 'px';
-    ecran.style.transform = `matrix3d(${k[0]},${k[3]},0,${k[6]},${k[1]},${k[4]},0,${k[7]},0,0,1,0,${k[2]},${k[5]},0,1)`;
-  }
-  placerEcran();
-  parent.addEventListener('resize', placerEcran);
-
-  setTimeout(() => { intro.remove(); style.remove(); parent.removeEventListener('resize', placerEcran); }, 7200);
+    parent.setTimeout(() => { parent.clearInterval(pluie); intro.remove(); style.remove(); }, 7200);
   }
 
   // ---- Écran de connexion : il faut un clic pour que le navigateur autorise le son ----
@@ -163,77 +183,81 @@ console.log('CINEMANIAK 1 : le script démarre');
     lance = true;
     doc.removeEventListener('keydown', lancer);
     porte.classList.add('part');
-    setTimeout(() => porte.remove(), 260);
+    parent.setTimeout(() => porte.remove(), 260);
     parent.__introDebut = Date.now();
-    try { jouerSons(); } catch (e) {}
+    try { if (parent.localStorage.getItem('cinemaniak-sons') !== 'off') jouerSons(); } catch (e) { try { jouerSons(); } catch (e2) {} }
     suite();
   }
   porte.addEventListener('click', lancer);
   doc.addEventListener('keydown', lancer);
 
-  // ---- Les sons, fabriqués directement par le navigateur (aucun fichier audio) ----
+  // ---- Les sons, fabriqués directement par le navigateur ----
   function jouerSons() {
     const AC = parent.AudioContext || parent.webkitAudioContext;
     if (!AC) return;
     const ac = new AC();
     const t0 = ac.currentTime + 0.05;
-    const sortie = ac.createGain();
-    sortie.gain.value = 0.7;
-    sortie.connect(ac.destination);
-
+    const sortie = ac.createGain(); sortie.gain.value = 0.7; sortie.connect(ac.destination);
     const bruit = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
-    const donnees = bruit.getChannelData(0);
-    for (let n = 0; n < donnees.length; n++) donnees[n] = Math.random() * 2 - 1;
+    const d = bruit.getChannelData(0);
+    for (let n = 0; n < d.length; n++) d[n] = Math.random() * 2 - 1;
+    function env(g, t, max, a, duree) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(max, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + duree); }
+    function souffle(t, duree, type, freq, max, q) {
+      const s = ac.createBufferSource(); s.buffer = bruit; s.loop = true;
+      const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq; if (q) f.Q.value = q;
+      const g = ac.createGain(); env(g, t, max, 0.01, duree);
+      s.connect(f); f.connect(g); g.connect(sortie); s.start(t); s.stop(t + duree + 0.05);
+      return f;
+    }
 
-    function clic(t, fort) {
+    // Ambiance de la salle de projection : ronronnement et cliquetis du projecteur
+    const moteur = ac.createOscillator(); moteur.type = 'sawtooth'; moteur.frequency.value = 48;
+    const fm = ac.createBiquadFilter(); fm.type = 'lowpass'; fm.frequency.value = 150;
+    const gm = ac.createGain(); gm.gain.setValueAtTime(0, t0); gm.gain.linearRampToValueAtTime(0.05, t0 + 0.8); gm.gain.linearRampToValueAtTime(0, t0 + 6.4);
+    moteur.connect(fm); fm.connect(gm); gm.connect(sortie); moteur.start(t0); moteur.stop(t0 + 6.6);
+    for (let k = 0; k < 24; k++) {
+      const t = t0 + 0.3 + k * 0.085;
       const s = ac.createBufferSource(); s.buffer = bruit;
-      const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = (fort ? 1200 : 2600) + Math.random() * 1800; f.Q.value = 1.2;
-      const g = ac.createGain();
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime((fort ? 0.9 : 0.35) + Math.random() * 0.25, t + 0.003);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + (fort ? 0.09 : 0.045));
-      s.connect(f); f.connect(g); g.connect(sortie);
-      s.start(t, Math.random() * 0.8, 0.12);
-    }
-    function bip(t, freq, duree, volume) {
-      const o = ac.createOscillator(); o.type = 'square'; o.frequency.value = freq;
-      const g = ac.createGain();
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(volume, t + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + duree);
-      o.connect(g); g.connect(sortie); o.start(t); o.stop(t + duree + 0.05);
+      const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 3200; f.Q.value = 3;
+      const g = ac.createGain(); env(g, t, 0.05, 0.002, 0.03);
+      s.connect(f); f.connect(g); g.connect(sortie); s.start(t, Math.random() * 0.5, 0.05);
     }
 
-    // Frappe au clavier pendant que l'identifiant et le mot de passe s'écrivent
-    [[0.8, 1.2, 27], [2.2, 0.9, 25], [3.3, 0.5, 10]].forEach(([debut, duree, nb]) => {
-      for (let n = 0; n < nb; n++) clic(t0 + debut + duree * n / nb + Math.random() * 0.025, false);
-    });
-    clic(t0 + 2.05, true); clic(t0 + 3.15, true); clic(t0 + 3.85, true);
+    // L'impulsion qui monte dans le câble : un son électrique qui grimpe
+    const monte = ac.createOscillator(); monte.type = 'sawtooth';
+    monte.frequency.setValueAtTime(70, t0 + 1.0); monte.frequency.exponentialRampToValueAtTime(900, t0 + 2.2);
+    const fmo = ac.createBiquadFilter(); fmo.type = 'lowpass'; fmo.frequency.setValueAtTime(300, t0 + 1.0); fmo.frequency.exponentialRampToValueAtTime(4000, t0 + 2.2);
+    const gmo = ac.createGain(); env(gmo, t0 + 1.0, 0.12, 0.6, 1.25);
+    monte.connect(fmo); fmo.connect(gmo); gmo.connect(sortie); monte.start(t0 + 1.0); monte.stop(t0 + 2.3);
+    const crepite = souffle(t0 + 1.0, 1.2, 'bandpass', 2500, 0.08, 1.5);
+    crepite.frequency.setValueAtTime(800, t0 + 1.0); crepite.frequency.exponentialRampToValueAtTime(6000, t0 + 2.2);
 
-    // Ronronnement du vieux PC
-    const moteur = ac.createOscillator(); moteur.type = 'sawtooth'; moteur.frequency.value = 55;
-    const filtre = ac.createBiquadFilter(); filtre.type = 'lowpass'; filtre.frequency.value = 160;
-    const gm = ac.createGain();
-    gm.gain.setValueAtTime(0, t0); gm.gain.linearRampToValueAtTime(0.06, t0 + 1); gm.gain.linearRampToValueAtTime(0, t0 + 6.4);
-    moteur.connect(filtre); filtre.connect(gm); gm.connect(sortie); moteur.start(t0); moteur.stop(t0 + 6.6);
+    // La prise se verrouille : un clac métallique et une décharge
+    const clac = ac.createOscillator(); clac.type = 'square'; clac.frequency.setValueAtTime(180, t0 + 2.22); clac.frequency.exponentialRampToValueAtTime(60, t0 + 2.4);
+    const gc = ac.createGain(); env(gc, t0 + 2.22, 0.4, 0.003, 0.25);
+    clac.connect(gc); gc.connect(sortie); clac.start(t0 + 2.22); clac.stop(t0 + 2.5);
+    souffle(t0 + 2.22, 0.5, 'highpass', 2000, 0.35);
+    const grave = ac.createOscillator(); grave.type = 'sine'; grave.frequency.setValueAtTime(90, t0 + 2.22); grave.frequency.exponentialRampToValueAtTime(30, t0 + 3.2);
+    const gg = ac.createGain(); env(gg, t0 + 2.22, 0.6, 0.01, 1.1);
+    grave.connect(gg); gg.connect(sortie); grave.start(t0 + 2.22); grave.stop(t0 + 3.4);
+
+    // Le flux de données qui arrive
+    souffle(t0 + 2.5, 1.8, 'bandpass', 5000, 0.035, 0.8);
 
     // ACCESS GRANTED
-    bip(t0 + 4.0, 880, 0.12, 0.13); bip(t0 + 4.14, 1320, 0.25, 0.13);
+    [[4.05, 880], [4.2, 1320]].forEach(([t, f]) => {
+      const o = ac.createOscillator(); o.type = 'square'; o.frequency.value = f;
+      const g = ac.createGain(); env(g, t0 + t, 0.12, 0.01, 0.22);
+      o.connect(g); g.connect(sortie); o.start(t0 + t); o.stop(t0 + t + 0.3);
+    });
 
-    // Souffle du zoom dans l'écran
-    const souffle = ac.createBufferSource(); souffle.buffer = bruit; souffle.loop = true;
-    const fs = ac.createBiquadFilter(); fs.type = 'lowpass'; fs.Q.value = 6;
-    fs.frequency.setValueAtTime(200, t0 + 4.4); fs.frequency.exponentialRampToValueAtTime(7000, t0 + 5.5);
-    const gs = ac.createGain();
-    gs.gain.setValueAtTime(0.0001, t0 + 4.4); gs.gain.exponentialRampToValueAtTime(0.35, t0 + 5.35); gs.gain.exponentialRampToValueAtTime(0.0001, t0 + 5.7);
-    souffle.connect(fs); fs.connect(gs); gs.connect(sortie); souffle.start(t0 + 4.4); souffle.stop(t0 + 5.8);
-
-    // Impact au moment du flash
+    // Le plongeon dans la lumière du projecteur
+    const plonge = souffle(t0 + 4.45, 1.1, 'lowpass', 200, 0.35, 6);
+    plonge.frequency.setValueAtTime(200, t0 + 4.45); plonge.frequency.exponentialRampToValueAtTime(7000, t0 + 5.45);
     const boum = ac.createOscillator(); boum.type = 'sine';
-    boum.frequency.setValueAtTime(140, t0 + 5.4); boum.frequency.exponentialRampToValueAtTime(32, t0 + 6.4);
-    const gb = ac.createGain();
-    gb.gain.setValueAtTime(0.0001, t0 + 5.4); gb.gain.exponentialRampToValueAtTime(0.8, t0 + 5.42); gb.gain.exponentialRampToValueAtTime(0.0001, t0 + 6.5);
-    boum.connect(gb); gb.connect(sortie); boum.start(t0 + 5.4); boum.stop(t0 + 6.6);
+    boum.frequency.setValueAtTime(140, t0 + 5.45); boum.frequency.exponentialRampToValueAtTime(32, t0 + 6.4);
+    const gb = ac.createGain(); env(gb, t0 + 5.45, 0.8, 0.02, 1.0);
+    boum.connect(gb); gb.connect(sortie); boum.start(t0 + 5.45); boum.stop(t0 + 6.6);
   }
 })();
 </script>

@@ -1,0 +1,66 @@
+<script>
+// Scan rétinien quand l'opérateur se connecte
+(function () {
+  const parent = window.parent, doc = parent.document;
+  const POLICE = "'Matrix Sans Video', monospace";
+  const style = doc.createElement('style');
+  style.textContent = `
+#cm-scan { position: fixed; inset: 0; z-index: 2147483000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px;
+  font-family: ${POLICE}; color: #00FF41; animation: cm-scan-fin 0.6s ease 4.6s forwards; }
+@keyframes cm-scan-fin { to { opacity: 0; visibility: hidden; } }
+#cm-scan svg { width: min(46vw, 420px); overflow: visible; filter: drop-shadow(0 0 10px #00FF41); }
+#cm-scan .ligne { stroke: #00FF41; fill: none; stroke-width: 2; stroke-dasharray: 900; stroke-dashoffset: 900; animation: cm-trace 1s ease forwards; }
+#cm-scan .iris { animation-delay: 0.4s; }
+#cm-scan .pupille { fill: #00FF41; opacity: 0; animation: cm-pupille 0.4s 1s forwards; transform-origin: 200px 110px; }
+@keyframes cm-trace { to { stroke-dashoffset: 0; } }
+@keyframes cm-pupille { from { opacity: 0; transform: scale(2); } to { opacity: 1; transform: scale(1); } }
+#cm-scan .rayon { stroke: #E8FFE8; stroke-width: 3; filter: drop-shadow(0 0 8px #00FF41); animation: cm-rayon 1.4s ease-in-out 1.1s 1 both; }
+@keyframes cm-rayon { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 1; } 50% { transform: translateY(220px); } 90% { opacity: 1; } 100% { transform: translateY(0); opacity: 0; } }
+#cm-scan .texte { font-size: min(4.2vw, 30px); letter-spacing: 0.25em; min-height: 1.4em; text-shadow: 0 0 10px #00FF41; }
+#cm-scan .barre { width: min(46vw, 420px); height: 8px; border: 1px solid #00FF41; }
+#cm-scan .barre i { display: block; height: 100%; width: 0; background: #00FF41; box-shadow: 0 0 12px #00FF41; animation: cm-barre 2.4s linear 0.6s forwards; }
+@keyframes cm-barre { to { width: 100%; } }
+#cm-scan.ok { animation: cm-ok 0.25s steps(2) 3, cm-scan-fin 0.6s ease 4.6s forwards; }
+#cm-scan.ok .texte { color: #ffcc33; text-shadow: 0 0 14px #ff9900; }
+@keyframes cm-ok { 50% { background: #102a00; } }
+`;
+  doc.head.appendChild(style);
+  const scan = doc.createElement('div');
+  scan.id = 'cm-scan';
+  scan.innerHTML = `
+<svg viewBox="0 0 400 220">
+  <path class="ligne" d="M10 110 Q200 -40 390 110 Q200 260 10 110 Z"/>
+  <circle class="ligne iris" cx="200" cy="110" r="62"/>
+  <circle class="ligne iris" cx="200" cy="110" r="40"/>
+  <circle class="pupille" cx="200" cy="110" r="18"/>
+  <line class="rayon" x1="0" y1="0" x2="400" y2="0"/>
+</svg>
+<div class="texte">ANALYSE RÉTINIENNE…</div>
+<div class="barre"><i></i></div>`;
+  doc.body.appendChild(scan);
+  const texte = scan.querySelector('.texte');
+  let ac = null;
+  try { if (parent.localStorage.getItem('cinemaniak-sons') !== 'off') ac = new (parent.AudioContext || parent.webkitAudioContext)(); } catch (e) {}
+  function bip(t, f, d, v) {
+    if (!ac) return;
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'square'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(v, ac.currentTime + t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t + d);
+    o.connect(g); g.connect(ac.destination); o.start(ac.currentTime + t); o.stop(ac.currentTime + t + d + 0.05);
+  }
+  if (ac) {
+    // Balayage du laser
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine';
+    o.frequency.setValueAtTime(400, ac.currentTime + 1.1); o.frequency.linearRampToValueAtTime(1200, ac.currentTime + 1.8); o.frequency.linearRampToValueAtTime(400, ac.currentTime + 2.5);
+    g.gain.setValueAtTime(0.0001, ac.currentTime + 1.1); g.gain.exponentialRampToValueAtTime(0.05, ac.currentTime + 1.2); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 2.5);
+    o.connect(g); g.connect(ac.destination); o.start(ac.currentTime + 1.1); o.stop(ac.currentTime + 2.6);
+  }
+  parent.setTimeout(() => { texte.textContent = 'CORRESPONDANCE : 99,98 %'; bip(0, 1200, 0.08, 0.06); }, 2500);
+  parent.setTimeout(() => {
+    scan.classList.add('ok');
+    texte.textContent = 'IDENTITÉ CONFIRMÉE · BIENVENUE, OPÉRATEUR';
+    bip(0, 660, 0.15, 0.08); bip(0.16, 880, 0.15, 0.08); bip(0.32, 1320, 0.35, 0.08);
+    try { parent.cinemaniakSucces && parent.cinemaniakSucces('operateur5'); } catch (e) {}
+  }, 3200);
+  parent.setTimeout(() => { scan.remove(); style.remove(); }, 5300);
+})();
+</script>

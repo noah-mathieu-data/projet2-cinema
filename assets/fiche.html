@@ -1,8 +1,8 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><style>
-@font-face { font-family: 'VT323'; src: url('/app/static/vt323.woff2') format('woff2'); }
+@font-face { font-family: 'Matrix Sans Video'; src: url('/app/static/matrixsansvideo.woff2') format('woff2'); size-adjust: 84%; font-display: swap; }
 @font-face { font-family: 'Katakana Matrix'; src: url('/app/static/katakana.woff2') format('woff2'); }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; font-family: 'VT323', 'Katakana Matrix', monospace; color: #C8FFD4; }
+html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; font-family: 'Matrix Sans Video', 'Katakana Matrix', monospace; color: #C8FFD4; }
 
 .dossier { position: relative; height: 100%; border: 1px solid rgba(0, 255, 65, 0.55); background: #000; overflow: hidden;
   box-shadow: 0 0 30px rgba(0, 255, 65, 0.25), inset 0 0 60px rgba(0, 255, 65, 0.08); animation: ouvre 0.5s ease-out; }
@@ -85,8 +85,27 @@ html, body { margin: 0; height: 100%; background: transparent; overflow: hidden;
 .salle.neuf { color: #ffcc33; text-shadow: 0 0 8px #ff9900; }
 .salle.hors { color: #ff6b6b; text-shadow: 0 0 8px #ff3b3b; }
 .statut { font-size: 20px; line-height: 1.25; color: #9fdcaf; max-width: 760px; opacity: 0; animation: apparait 0.4s 1.6s forwards; }
+.voir-billet { display: inline-block; margin-left: 14px; padding: 0 10px; border: 1px solid #00FF41; color: #00FF41; cursor: pointer; animation: clignote 1s steps(1) 3; }
+.voir-billet:hover { background: #00FF41; color: #000; }
+.compte { color: #E8FFE8; text-shadow: 0 0 8px #00FF41; }
+.badge.generique { cursor: pointer; color: #000; background: #00FF41; box-shadow: 0 0 12px #00FF41; margin-left: 10px; }
+.badge.generique:hover { background: #E8FFE8; }
 .ticket { margin-top: 8px; font-size: 20px; color: #E8FFE8; min-height: 24px; text-shadow: 0 0 8px #00FF41; }
 html, body { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><path d='M2 2 L2 18 L6.5 13.5 L10 20 L12.5 19 L9 12.5 L15 12.5 Z' fill='%2300FF41' stroke='black' stroke-width='1.2'/></svg>") 2 2, auto; }
+#cadre { transition: transform 0.18s ease-out; }
+#cadre::after { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; mix-blend-mode: screen; opacity: 0; transition: opacity 0.25s;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(232, 255, 232, 0.4), rgba(0, 255, 65, 0.12) 30%, transparent 60%); }
+#cadre.incline::after { opacity: 1; }
+@media (max-width: 760px) {
+  .entete { padding: 10px 16px; font-size: 13px; letter-spacing: 0.12em; }
+  .entete #ref { display: none; }
+  .corps { flex-direction: column; gap: 22px; padding: 18px 16px; height: auto; }
+  .cadre { flex: none; width: 100%; max-width: 300px; height: 450px; margin: 0 auto; }
+  .titre { font-size: 40px !important; }
+  .jauges { flex-direction: column; gap: 14px; }
+  .dossier { height: auto; }
+  html, body { height: auto; overflow: visible; }
+}
 </style></head><body>
 <div class="dossier">
   <div class="fond" id="fond"></div>
@@ -124,6 +143,7 @@ try {
     window.frameElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   window.parent.__ficheVue = true;
+  if (window.parent.cinemaniakDossier) window.parent.cinemaniakDossier();
 } catch (e) {}
 document.addEventListener('keydown', (e) => { try { window.parent.cinemaniakTouche(e); } catch (err) {} });
 const signes = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789';
@@ -163,6 +183,13 @@ const decode = setInterval(() => {
 
 if (FILM.accroche) $('accroche').textContent = '« ' + FILM.accroche + ' »';
 $('ligne').textContent = [FILM.annee, FILM.duree + ' MIN', FILM.langue.toUpperCase()].join('  ·  ');
+// Bouton pour lancer le générique du film
+setTimeout(() => {
+  const gen = document.createElement('span'); gen.className = 'badge generique'; gen.textContent = '▶ GÉNÉRIQUE';
+  gen.style.animationDelay = '1.2s';
+  gen.addEventListener('click', () => { try { window.parent.cinemaniakGenerique(FILM); } catch (e) {} });
+  $('badges').appendChild(gen);
+}, 0);
 FILM.genres.forEach((g, i) => {
   $('badges').insertAdjacentHTML('beforeend', `<span class="badge" style="animation-delay:${0.9 + i * 0.15}s">${g}</span>`);
 });
@@ -197,23 +224,72 @@ setTimeout(function taper() {
   if (n < texte.length) setTimeout(taper, 14);
 }, 1500);
 
+// Affiche qui s'incline en suivant la souris
+cadre.addEventListener('mousemove', (e) => {
+  const r = cadre.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+  cadre.style.transform = `perspective(800px) rotateY(${(px - 0.5) * 20}deg) rotateX(${(0.5 - py) * 20}deg) scale(1.03)`;
+  cadre.style.setProperty('--gx', px * 100 + '%'); cadre.style.setProperty('--gy', py * 100 + '%'); cadre.classList.add('incline');
+});
+cadre.addEventListener('mouseleave', () => { cadre.style.transform = ''; cadre.classList.remove('incline'); });
+
+// Sur téléphone, le cadre s'agrandit pour tout montrer
+function ajuster() {
+  try {
+    if (window.parent.innerWidth > 760) return;
+    const cadreFiche = window.frameElement, hauteur = document.querySelector('.dossier').scrollHeight + 'px';
+    cadreFiche.style.height = hauteur;
+    let bloc = cadreFiche.parentElement;
+    for (let k = 0; bloc && k < 4; k++, bloc = bloc.parentElement) { bloc.style.height = 'auto'; bloc.style.minHeight = hauteur; }
+  } catch (e) {}
+}
+setTimeout(ajuster, 100); setTimeout(ajuster, 2500); window.addEventListener('resize', ajuster);
+
 // Séances : seulement si le film est à l'affiche cette semaine
 let place = 0;
 const statut = FILM.statut || 'hors';
 if (statut === 'affiche') {
   document.querySelector('.seances-titre').innerHTML = '&gt; À L\'AFFICHE · <span class="salle">SALLE ' + FILM.salle + '</span> · CETTE SEMAINE';
+  // Compte à rebours jusqu'à la prochaine séance
+  const prochaines = [];
+  FILM.jours.forEach(([nom, heures], j) => heures.forEach(hr => {
+    const [h, m] = hr.split(':').map(Number);
+    const d = new Date(); d.setDate(d.getDate() + j); d.setHours(h, m, 0, 0);
+    if (d > new Date()) prochaines.push(d);
+  }));
+  if (prochaines.length) {
+    const cible = prochaines.sort((a, b) => a - b)[0];
+    const ligne = document.createElement('span'); ligne.className = 'compte';
+    document.querySelector('.seances-titre').appendChild(ligne);
+    const maj = () => { try { ligne.textContent = ' · PROCHAINE DANS ' + window.parent.cinemaniakFormat(cible - new Date()); } catch (e) {} };
+    maj(); setInterval(maj, 1000);
+  }
   FILM.jours.forEach(([nom, heures], j) => {
     const bloc = document.createElement('div');
     bloc.className = 'jour'; bloc.style.animationDelay = (1.6 + j * 0.12) + 's';
     bloc.innerHTML = '<b>' + nom + '</b>' + heures.map(hr => '<span class="heure">' + hr + '</span>').join('');
     $('jours').appendChild(bloc);
     bloc.querySelectorAll('.heure').forEach(btn => btn.addEventListener('click', () => {
-      document.querySelectorAll('.heure.prise').forEach(x => x.classList.remove('prise'));
-      btn.classList.add('prise');
-      const rang = 'ABCDEFGHJ'[Math.floor(Math.random() * 9)] + (1 + Math.floor(Math.random() * 14));
-      const message = '> PLACE RÉSERVÉE · ' + nom + ' ' + btn.textContent + ' · SALLE ' + FILM.salle + ' · RANG ' + rang + ' ✔';
-      let n = 0; clearInterval(place);
-      place = setInterval(() => { n += 2; $('ticket').textContent = message.slice(0, n); if (n >= message.length) clearInterval(place); }, 18);
+      // On ouvre le plan de la salle pour choisir sa place
+      const seance = { titre: FILM.titre, jour: nom, heure: btn.textContent, salle: FILM.salle, affiche: FILM.affiche,
+                       ref: 'CM-' + String(Math.floor(100000 + Math.random() * 899999)) };
+      try {
+        window.parent.cinemaniakPlan(seance, (billet) => {
+          document.querySelectorAll('.heure.prise').forEach(x => x.classList.remove('prise'));
+          btn.classList.add('prise');
+          const message = '> PLACE RÉSERVÉE · ' + nom + ' ' + btn.textContent + ' · SALLE ' + FILM.salle + ' · PLACE ' + billet.place + ' ✔';
+          let n = 0; clearInterval(place);
+          place = setInterval(() => {
+            n += 2; $('ticket').textContent = message.slice(0, n);
+            if (n >= message.length) {
+              clearInterval(place);
+              const bouton = document.createElement('span');
+              bouton.className = 'voir-billet'; bouton.textContent = '🎟 VOIR MON BILLET';
+              bouton.addEventListener('click', () => { try { window.parent.cinemaniakTic(); window.parent.cinemaniakBillet(billet); } catch (err) {} });
+              $('ticket').appendChild(bouton);
+            }
+          }, 18);
+        });
+      } catch (err) {}
     }));
   });
 } else if (statut === 'candidat') {
@@ -229,6 +305,7 @@ document.addEventListener('mousemove', (e) => {
   try {
     const r = window.frameElement.getBoundingClientRect();
     window.parent.cinemaniakTrace(r.left + e.clientX, r.top + e.clientY);
+    window.parent.cinemaniakBouge();
   } catch (err) {}
 });
 </script></body></html>

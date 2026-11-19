@@ -1,0 +1,103 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@font-face { font-family: 'Matrix Sans Video'; src: url('/app/static/matrixsansvideo.woff2') format('woff2'); size-adjust: 84%; font-display: swap; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: transparent; overflow: hidden; font-family: 'Matrix Sans Video', monospace; color: #C8FFD4;
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><path d='M2 2 L2 18 L6.5 13.5 L10 20 L12.5 19 L9 12.5 L15 12.5 Z' fill='%2300FF41' stroke='black' stroke-width='1.2'/></svg>") 2 2, auto; }
+.tableau { border: 1px solid rgba(0, 255, 65, 0.5); background: #010603; padding: 14px 18px 10px; box-shadow: 0 0 30px rgba(0, 255, 65, 0.18), inset 0 0 40px rgba(0, 0, 0, 0.8); }
+.haut { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.haut .nom { font-size: 22px; letter-spacing: 0.3em; color: #00FF41; text-shadow: 0 0 8px #00FF41; }
+.haut .heure { font-size: 26px; color: #E8FFE8; letter-spacing: 0.15em; text-shadow: 0 0 8px #00FF41; }
+.entetes, .ligne { display: grid; grid-template-columns: 90px 1fr 120px 210px; gap: 16px; align-items: center; }
+.entetes { font-size: 16px; letter-spacing: 0.25em; color: #4fbf6a; padding: 0 0 6px; border-bottom: 1px solid rgba(0, 255, 65, 0.25); }
+.ligne { padding: 5px 0; border-bottom: 1px dashed rgba(0, 255, 65, 0.12); }
+.cases { display: flex; gap: 2px; overflow: hidden; }
+.case { position: relative; width: 17px; height: 28px; flex: none; background: linear-gradient(#0b1a0e 0 49%, #000 49% 51%, #08140a 51%);
+  border-radius: 2px; color: #00FF41; font-size: 24px; line-height: 28px; text-align: center; text-shadow: 0 0 6px #00FF41; }
+.case.blanc { color: #E8FFE8; }
+.case.ambre { color: #ffcc33; text-shadow: 0 0 6px #ff9900; }
+.case.rouge { color: #ff4d4d; text-shadow: 0 0 6px #ff0030; }
+.case.bleu { color: #7fbfff; text-shadow: 0 0 6px #3c8cff; }
+.case.tourne { animation: tourne 0.06s linear; }
+@keyframes tourne { 50% { transform: scaleY(0.2); } }
+.statut.clignote .case { animation: clignote 1s steps(1) infinite; }
+@keyframes clignote { 50% { opacity: 0.25; } }
+@media (max-width: 760px) {
+  .entetes, .ligne { grid-template-columns: 52px 1fr 70px; gap: 8px; }
+  .entetes span:last-child, .ligne .statut { display: none; }
+  .case { width: 11px; height: 20px; font-size: 16px; line-height: 20px; }
+}
+</style></head><body>
+<div class="tableau">
+  <div class="haut"><span class="nom">▣ CINÉMANIAK · SÉANCES DU JOUR</span><span class="heure" id="heure"></span></div>
+  <div class="entetes"><span>SALLE</span><span>FILM</span><span>HEURE</span><span>STATUT</span></div>
+  <div id="lignes"></div>
+</div>
+<script>
+const LIGNES = DONNEES_TABLEAU;
+const SIGNES = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:·-';
+// La colonne FILM s'adapte au titre le plus long pour l'afficher en entier
+const plusLong = Math.max(...LIGNES.map(l => l.film.length));
+const largeurs = innerWidth <= 760 ? [3, plusLong, 5, 0] : [3, plusLong, 5, 12];
+const couleurs = { 'EMBARQUEMENT': 'ambre', 'EN COURS': 'bleu', 'COMPLET': 'rouge', 'À L\'HEURE': '', 'VOTE OUVERT': 'ambre', 'ÉLU · JEUDI': 'ambre', 'EN TÊTE': 'ambre', 'DEMAIN': '' };
+
+function rangee(texte, largeur, classe) {
+  const bloc = document.createElement('div'); bloc.className = 'cases';
+  const lettres = texte.toUpperCase().padEnd(largeur, ' ').slice(0, largeur).split('');
+  lettres.forEach((l, i) => {
+    const c = document.createElement('span'); c.className = 'case ' + (classe || ''); c.textContent = ' ';
+    c.dataset.cible = l; bloc.appendChild(c);
+  });
+  return bloc;
+}
+
+let delai = 0;
+LIGNES.forEach((l, n) => {
+  const ligne = document.createElement('div'); ligne.className = 'ligne';
+  ligne.appendChild(rangee(l.salle, largeurs[0], 'blanc'));
+  ligne.appendChild(rangee(l.film, largeurs[1]));
+  ligne.appendChild(rangee(l.heure, largeurs[2], 'blanc'));
+  const statut = rangee(l.statut, largeurs[3], couleurs[l.statut] || '');
+  statut.classList.add('statut');
+  if (l.statut === 'EMBARQUEMENT') statut.classList.add('clignote');
+  ligne.appendChild(statut);
+  document.getElementById('lignes').appendChild(ligne);
+});
+
+// Les lettres tournent avant de se fixer, comme un vrai panneau de gare
+// On réduit la taille des cases du titre si besoin pour que tout tienne sur une ligne
+function ajusterCases() {
+  const colonne = document.querySelector('.ligne > .cases:nth-child(2)');
+  if (!colonne) return;
+  const dispo = colonne.parentElement.children[1].getBoundingClientRect().width;
+  const taille = Math.max(7, Math.min(17, Math.floor(dispo / plusLong) - 2));
+  document.querySelectorAll('.ligne > .cases:nth-child(2) .case').forEach(c => {
+    c.style.width = taille + 'px'; c.style.fontSize = Math.round(taille * 1.4) + 'px';
+  });
+}
+ajusterCases(); addEventListener('resize', ajusterCases);
+const cases = [...document.querySelectorAll('.case')];
+cases.forEach((c, i) => {
+  const cible = c.dataset.cible;
+  if (cible === ' ') return;
+  const tours = 6 + Math.floor(Math.random() * 10);
+  let t = 0;
+  setTimeout(function tourner() {
+    c.classList.remove('tourne'); void c.offsetWidth; c.classList.add('tourne');
+    if (t < tours) { c.textContent = SIGNES[Math.floor(Math.random() * SIGNES.length)]; t++; setTimeout(tourner, 55); }
+    else c.textContent = cible;
+  }, 300 + (i % 60) * 18 + Math.floor(i / 60) * 40);
+});
+// Petit cliquetis pendant que le panneau se met à jour
+try { for (let k = 0; k < 14; k++) setTimeout(() => window.parent.cinemaniakCliquetis && window.parent.cinemaniakCliquetis(), 300 + k * 110); } catch (e) {}
+
+function heure() {
+  const d = new Date();
+  document.getElementById('heure').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
+}
+heure(); setInterval(heure, 1000);
+
+document.addEventListener('mousemove', (e) => {
+  try { const r = window.frameElement.getBoundingClientRect(); window.parent.cinemaniakTrace(r.left + e.clientX, r.top + e.clientY); window.parent.cinemaniakBouge(); } catch (err) {}
+});
+document.addEventListener('keydown', (e) => { try { window.parent.cinemaniakTouche(e); } catch (err) {} });
+</script></body></html>

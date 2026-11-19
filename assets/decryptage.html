@@ -1,0 +1,155 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@font-face { font-family: 'Matrix Sans Video'; src: url('/app/static/matrixsansvideo.woff2') format('woff2'); size-adjust: 84%; font-display: swap; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: transparent; overflow: hidden; font-family: 'Matrix Sans Video', monospace; color: #C8FFD4;
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><path d='M2 2 L2 18 L6.5 13.5 L10 20 L12.5 19 L9 12.5 L15 12.5 Z' fill='%2300FF41' stroke='black' stroke-width='1.2'/></svg>") 2 2, auto; }
+.jeu { display: flex; gap: 30px; border: 1px solid rgba(0, 255, 65, 0.5); background: #010603; padding: 20px 24px; height: 470px; box-shadow: 0 0 30px rgba(0, 255, 65, 0.18); }
+.ecran { position: relative; flex: none; width: 280px; height: 420px; border: 1px solid #00FF41; background: #000; box-shadow: 0 0 20px rgba(0, 255, 65, 0.35); overflow: hidden; }
+canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.ecran::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(0, 255, 65, 0.06) 0 1px, transparent 1px 3px); }
+.niveau { position: absolute; top: 8px; left: 8px; z-index: 2; background: rgba(0, 0, 0, 0.75); padding: 1px 8px; color: #00FF41; font-size: 18px; letter-spacing: 0.15em; }
+.droite { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.infos { display: flex; justify-content: space-between; font-size: 20px; letter-spacing: 0.2em; color: #7CFC9A; }
+.infos b { font-weight: 400; color: #E8FFE8; text-shadow: 0 0 8px #00FF41; }
+.question { margin: 18px 0 14px; font-size: 30px; color: #E8FFE8; text-shadow: 0 0 10px #00FF41; }
+.barre { height: 10px; border: 1px solid rgba(0, 255, 65, 0.4); margin-bottom: 18px; }
+.barre i { display: block; height: 100%; width: 100%; background: #00FF41; box-shadow: 0 0 10px #00FF41; }
+.choix { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.choix button { font-family: 'Matrix Sans Video', monospace; font-size: 22px; text-align: left; padding: 12px 14px; color: #00FF41; background: rgba(0, 20, 5, 0.9);
+  border: 1px solid rgba(0, 255, 65, 0.45); letter-spacing: 0.05em; cursor: inherit; transition: all 0.15s; }
+.choix button:hover:not(:disabled) { background: #00FF41; color: #000; box-shadow: 0 0 18px #00FF41; }
+.choix button.bon { background: #00FF41; color: #000; }
+.choix button.faux { background: #5c0509; color: #ffb3b3; border-color: #ff3b3b; }
+.message { margin-top: 18px; font-size: 24px; min-height: 30px; color: #ffcc33; text-shadow: 0 0 8px #ff9900; }
+.depart { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+.depart-titre { font-size: 30px; letter-spacing: 0.2em; color: #00FF41; text-shadow: 0 0 10px #00FF41; animation: attente 1.2s steps(1) infinite; }
+@keyframes attente { 50% { opacity: 0.4; } }
+.depart-texte { font-size: 22px; line-height: 1.4; color: #9fdcaf; }
+#commencer { align-self: flex-start; font-family: 'Matrix Sans Video', monospace; font-size: 26px; letter-spacing: 0.15em; padding: 14px 26px; color: #000; background: #00FF41;
+  border: none; box-shadow: 0 0 25px #00FF41; cursor: inherit; transition: transform 0.15s; }
+#commencer:hover { transform: scale(1.05); box-shadow: 0 0 45px #00FF41; }
+.fin { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; flex: 1; }
+.fin b { font-weight: 400; font-size: 70px; color: #00FF41; text-shadow: 0 0 20px #00FF41; }
+.fin span { font-size: 26px; color: #E8FFE8; letter-spacing: 0.15em; }
+.fin small { margin-top: 12px; font-size: 20px; color: #7CFC9A; letter-spacing: 0.15em; }
+@media (max-width: 760px) {
+  .jeu { flex-direction: column; height: auto; gap: 16px; padding: 14px; }
+  .ecran { width: 200px; height: 300px; margin: 0 auto; }
+  .choix { grid-template-columns: 1fr; }
+  .question { font-size: 22px; }
+}
+</style></head><body>
+<div class="jeu">
+  <div class="ecran"><div class="niveau" id="niveau">EN ATTENTE</div><canvas id="toile" width="280" height="420"></canvas></div>
+  <div class="depart" id="depart">
+    <div class="depart-titre">&gt; SIGNAL EN ATTENTE</div>
+    <div class="depart-texte">5 affiches cryptées vont apparaître une par une.<br>Trouve le film avant que l'image soit nette.</div>
+    <button id="commencer">▶ COMMENCER LE DÉCRYPTAGE</button>
+  </div>
+  <div class="droite" id="partie" style="display:none">
+    <div class="infos"><span>MANCHE <b id="manche">1</b> / 5</span><span>SCORE <b id="score">0</b></span></div>
+    <div class="question">&gt; Quel film se cache derrière ce signal ?</div>
+    <div class="barre"><i id="temps"></i></div>
+    <div class="choix" id="choix"></div>
+    <div class="message" id="message"></div>
+  </div>
+  <div class="fin" id="fin"><span>DÉCRYPTAGE TERMINÉ</span><b id="final">0</b><span id="rang"></span><small>Clique sur NOUVELLE PARTIE pour rejouer</small></div>
+</div>
+<script>
+const MANCHES = DONNEES_JEU;
+const toile = document.getElementById('toile'), ctx = toile.getContext('2d');
+const DUREE = 10000;
+let manche = 0, jouees = 0, score = 0, image = null, debut = 0, fini = false, animation = 0;
+const $ = id => document.getElementById(id);
+
+function son(nom) { try { window.parent.cinemaniakTic && window.parent.cinemaniakTic(); } catch (e) {} }
+
+function dessiner(taillePixel) {
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 280, 420);
+  if (!image) return;
+  const w = Math.max(1, Math.round(280 / taillePixel)), h = Math.max(1, Math.round(420 / taillePixel));
+  ctx.drawImage(image, 0, 0, w, h);
+  ctx.drawImage(toile, 0, 0, w, h, 0, 0, 280, 420);
+}
+
+function boucle(t) {
+  if (fini) return;
+  const p = Math.min(1, (t - debut) / DUREE);
+  const taille = Math.max(1, Math.round(70 * Math.pow(1 - p, 2.2)));
+  dessiner(taille);
+  $('niveau').textContent = p < 1 ? 'DÉCRYPTAGE ' + Math.round(p * 100) + '%' : 'DÉCRYPTÉ';
+  $('temps').style.width = (100 * (1 - p)) + '%';
+  if (p < 1) animation = requestAnimationFrame(boucle);
+  else repondre(null);
+}
+
+function lancer() {
+  if (manche >= MANCHES.length) return terminer();
+  const m = MANCHES[manche];
+  $('manche').textContent = manche + 1;
+  $('message').textContent = '';
+  fini = false;
+  const choix = $('choix'); choix.innerHTML = '';
+  m.choix.forEach(titre => {
+    const b = document.createElement('button'); b.textContent = titre;
+    b.addEventListener('click', () => repondre(titre, b));
+    choix.appendChild(b);
+  });
+  image = new Image();
+  image.onload = () => { debut = performance.now(); animation = requestAnimationFrame(boucle); };
+  image.onerror = () => { manche++; lancer(); };
+  image.src = m.affiche;
+}
+
+function repondre(titre, bouton) {
+  if (fini) return;
+  fini = true; cancelAnimationFrame(animation);
+  const m = MANCHES[manche];
+  const reste = Math.max(0, 1 - (performance.now() - debut) / DUREE);
+  dessiner(1); $('niveau').textContent = 'DÉCRYPTÉ';
+  document.querySelectorAll('#choix button').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === m.bon) b.classList.add('bon');
+  });
+  if (titre === m.bon) {
+    const points = 100 + Math.round(reste * 900);
+    score += points; $('score').textContent = score;
+    $('message').textContent = '✔ SIGNAL IDENTIFIÉ · +' + points;
+    son();
+  } else {
+    if (bouton) bouton.classList.add('faux');
+    $('message').textContent = titre ? '✕ MAUVAISE PISTE · C\'ÉTAIT ' + m.bon.toUpperCase() : '✕ TEMPS ÉCOULÉ · C\'ÉTAIT ' + m.bon.toUpperCase();
+  }
+  manche++; jouees++;
+  setTimeout(lancer, 1900);
+}
+
+function terminer() {
+  $('partie').style.display = 'none';
+  $('fin').style.display = 'flex';
+  $('final').textContent = score;
+  $('rang').textContent = score >= 3500 ? 'RANG : L\'ÉLU' : score >= 2000 ? 'RANG : OPÉRATEUR' : score >= 800 ? 'RANG : RECRUE' : 'RANG : ENCORE BRANCHÉ À LA MATRICE';
+  if (jouees === 0) { $('rang').textContent = 'SIGNAL INTROUVABLE · VÉRIFIE TA CONNEXION'; return; }
+  try { window.parent.cinemaniakSucces && window.parent.cinemaniakSucces('decrypte'); } catch (e) {}
+}
+
+// Écran de neige en attendant le clic (aucune affiche n'est chargée avant)
+let neige = setInterval(() => {
+  const img = ctx.createImageData(70, 105);
+  for (let k = 0; k < img.data.length; k += 4) { const v = Math.random() * 90; img.data[k] = v * 0.2; img.data[k + 1] = v; img.data[k + 2] = v * 0.3; img.data[k + 3] = 255; }
+  ctx.putImageData(img, 0, 0); ctx.imageSmoothingEnabled = false; ctx.drawImage(toile, 0, 0, 70, 105, 0, 0, 280, 420);
+}, 90);
+$('commencer').addEventListener('click', () => {
+  clearInterval(neige);
+  $('depart').style.display = 'none';
+  $('partie').style.display = 'flex';
+  son();
+  lancer();
+});
+
+document.addEventListener('mousemove', (e) => {
+  try { const r = window.frameElement.getBoundingClientRect(); window.parent.cinemaniakTrace(r.left + e.clientX, r.top + e.clientY); window.parent.cinemaniakBouge(); } catch (err) {}
+});
+document.addEventListener('keydown', (e) => { try { window.parent.cinemaniakTouche(e); } catch (err) {} });
+</script></body></html>

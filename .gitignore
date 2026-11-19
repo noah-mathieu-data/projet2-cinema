@@ -2,3 +2,9 @@
 __pycache__/
 data/TMDB_movie_dataset_v11.csv
 static/musique.mp3
+data/votes_salle9.json
+data/annonce.json
+data/evenement.json
+data/stats.json
+data/forces.json
+.streamlit/secrets.toml

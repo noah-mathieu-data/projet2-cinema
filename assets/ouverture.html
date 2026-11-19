@@ -1,14 +1,14 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><style>
-@font-face { font-family: 'VT323'; src: url('/app/static/vt323.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'Matrix Sans Video'; src: url('/app/static/matrixsansvideo.woff2') format('woff2'); size-adjust: 84%; font-display: swap; }
 @font-face { font-family: 'Katakana Matrix'; src: url('/app/static/katakana.woff2') format('woff2'); font-display: block; }
-html, body { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: 'VT323', monospace; }
+html, body { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: 'Matrix Sans Video', monospace; }
 canvas { position: absolute; inset: 0; }
 .voile { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.92) 70%); }
 .balayage { position: absolute; inset: 0; pointer-events: none; animation: scintille 5s infinite;
     background: repeating-linear-gradient(to bottom, rgba(0,255,65,0.06) 0 1px, transparent 1px 3px); }
 @keyframes scintille { 0%, 100% { opacity: 0.9; } 48% { opacity: 0.55; } 50% { opacity: 1; } }
 .centre { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-h1 { margin: 0; font-size: 110px; font-family: 'VT323', 'Katakana Matrix', 'VT323', monospace; font-weight: 400; letter-spacing: 0.35em; color: #00FF41;
+h1 { margin: 0; font-size: 110px; font-family: 'Matrix Sans Video', 'Katakana Matrix', 'Matrix Sans Video', monospace; font-weight: 400; letter-spacing: 0.35em; color: #00FF41;
     text-shadow: 0 0 12px #00FF41, 0 0 45px #00FF41, 0 0 90px rgba(0,255,65,0.5); }
 .slogan { margin-top: 10px; color: #E8FFE8; letter-spacing: 0.4em; font-size: 22px; opacity: 0; }
 .demarrage { margin-top: 26px; color: #7CFC9A; font-size: 21px; min-height: 75px; }
@@ -16,6 +16,11 @@ h1 { margin: 0; font-size: 110px; font-family: 'VT323', 'Katakana Matrix', 'VT32
 .ok { color: #00FF41; text-shadow: 0 0 8px #00FF41; }
 @keyframes apparait { to { opacity: 1; } }
 html, body { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><path d='M2 2 L2 18 L6.5 13.5 L10 20 L12.5 19 L9 12.5 L15 12.5 Z' fill='%2300FF41' stroke='black' stroke-width='1.2'/></svg>") 2 2, auto; }
+@media (max-width: 760px) {
+  h1 { font-size: 12vw !important; letter-spacing: 0.15em !important; }
+  .slogan { font-size: 3.4vw !important; letter-spacing: 0.2em !important; text-align: center; }
+  .demarrage { font-size: 3.6vw !important; padding: 0 12px; }
+}
 </style></head><body>
 <canvas id="pluie"></canvas><div class="voile"></div><div class="balayage"></div>
 <div class="centre">
@@ -48,8 +53,10 @@ const derniere = Array(colonnes).fill(-1);
 function tomber() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
   ctx.fillRect(0, 0, toile.width, toile.height);
-  ctx.font = '500 ' + taille + 'px "Katakana Matrix", "VT323", monospace';
+  ctx.font = '500 ' + taille + 'px "Katakana Matrix", "Matrix Sans Video", monospace';
+  let densite = 1; try { densite = window.parent.cinemaniakMeteo ? window.parent.cinemaniakMeteo().densite : 1; } catch (e) {}
   gouttes.forEach((y, i) => {
+    if ((i * 7 % 10) / 10 >= densite) return;
     const ligne = Math.floor(y);
     const x = i * taille;
     if (ligne !== derniere[i]) {
@@ -70,10 +77,10 @@ function tomber() {
       }
     }
     if (y * taille > toile.height && Math.random() > 0.975) { gouttes[i] = 0; derniere[i] = -1; avant[i] = ''; }
-    else gouttes[i] = y + vitesses[i];
+    else { let r = 0, m = { densite: 1, vitesse: 1 }; try { r = window.parent.__cmRythme || 0; m = window.parent.cinemaniakMeteo ? window.parent.cinemaniakMeteo() : m; } catch (e) {} gouttes[i] = y + vitesses[i] * m.vitesse * (1 + r * 2.2); }
   });
 }
-document.fonts.load('500 20px "Katakana Matrix", "VT323"').finally(() => setInterval(tomber, 45));
+document.fonts.load('500 20px "Katakana Matrix", "Matrix Sans Video"').finally(() => setInterval(tomber, 45));
 
 const DEPART = 6500;   
 const mot = 'CINÉMANIAK', titre = document.getElementById('titre');
@@ -122,6 +129,7 @@ document.addEventListener('mousemove', (e) => {
   try {
     const r = window.frameElement.getBoundingClientRect();
     window.parent.cinemaniakTrace(r.left + e.clientX, r.top + e.clientY);
+    window.parent.cinemaniakBouge();
   } catch (err) {}
 });
 </script></body></html>

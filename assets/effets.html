@@ -10,15 +10,185 @@
   const hasard = () => signes[Math.floor(Math.random() * signes.length)];
 
   const css = `
-#cm-son { position: fixed; top: 14px; right: 18px; z-index: 999993; font-family: 'VT323', monospace; font-size: 20px; letter-spacing: 0.2em;
-  color: #00FF41; background: rgba(0, 10, 3, 0.85); border: 1px solid #00FF41; padding: 4px 14px; box-shadow: 0 0 14px rgba(0, 255, 65, 0.45); transition: all 0.2s; }
-#cm-son b { font-weight: 400; color: #E8FFE8; text-shadow: 0 0 8px #00FF41; }
-#cm-son:hover { background: #00FF41; color: #000; }
-#cm-son:hover b { color: #000; text-shadow: none; }
-#cm-son.off { color: #4f8a5c; border-color: #2a6b3a; box-shadow: none; }
-#cm-son.off b { color: #ff3b3b; text-shadow: 0 0 8px #ff3b3b; }
+/* Sous-titres du ciné */
+#cm-soustitre { position: fixed; left: 50%; bottom: 5vh; transform: translateX(-50%); z-index: 999991; pointer-events: none; max-width: 80vw; text-align: center;
+  font-family: 'Matrix Sans Video', monospace; font-size: 22px; color: #fff; background: rgba(0, 0, 0, 0.72); padding: 4px 16px; letter-spacing: 0.05em;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.6); opacity: 0; transition: opacity 0.5s; }
+#cm-soustitre.visible { opacity: 1; }
 
-.cm-trace { position: fixed; z-index: 999990; pointer-events: none; font-family: 'Katakana Matrix', 'VT323', monospace;
+/* Visite guidée */
+#cm-demo { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 999998; pointer-events: none; padding: 8px 22px; font-family: 'Matrix Sans Video', monospace;
+  font-size: 21px; letter-spacing: 0.12em; color: #000; background: #00FF41; box-shadow: 0 0 30px #00FF41; }
+
+/* Générique */
+#cm-generique { position: fixed; inset: 0; z-index: 2147483000; background: #000; overflow: hidden; font-family: 'Matrix Sans Video', monospace; cursor: pointer; animation: cm-apparait 0.6s; }
+#cm-generique .fond { position: absolute; inset: -4%; background-size: cover; background-position: center; filter: brightness(0.45) saturate(0.6); animation: cm-ken 12s linear forwards; }
+@keyframes cm-ken { from { transform: scale(1.02); } to { transform: scale(1.18) translateX(-2%); } }
+#cm-generique .voile { position: absolute; inset: 0; background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.9)), repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 3px); }
+#cm-generique .bandes::before, #cm-generique .bandes::after { content: ""; position: absolute; left: 0; right: 0; height: 11vh; background: #000; z-index: 2; }
+#cm-generique .bandes::before { top: 0; } #cm-generique .bandes::after { bottom: 0; }
+#cm-generique .presente { position: absolute; top: 40%; width: 100%; text-align: center; color: #7CFC9A; letter-spacing: 0.6em; font-size: 2.4vh; opacity: 0; animation: cm-gen-texte 2.6s ease 0.5s forwards; }
+@keyframes cm-gen-texte { 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+#cm-generique .titre { position: absolute; top: 38%; width: 100%; text-align: center; color: #E8FFE8; font-size: min(8vw, 90px); letter-spacing: 0.08em; padding: 0 4vw; box-sizing: border-box;
+  text-shadow: 0 0 20px #00FF41, 0 0 60px rgba(0, 255, 65, 0.6); opacity: 0; animation: cm-apparait-gen 0.4s 3.2s forwards; }
+@keyframes cm-apparait-gen { to { opacity: 1; } }
+#cm-generique .accroche { position: absolute; top: 58%; width: 100%; text-align: center; color: #9fdcaf; font-size: 2.6vh; font-style: italic; letter-spacing: 0.1em; padding: 0 8vw; box-sizing: border-box; min-height: 3vh; }
+#cm-generique .infos { position: absolute; bottom: 14vh; width: 100%; text-align: center; color: #7CFC9A; letter-spacing: 0.4em; font-size: 2vh; opacity: 0; animation: cm-apparait-gen 0.8s 6.5s forwards; }
+#cm-generique .affiche { position: absolute; right: 6vw; top: 50%; height: 46vh; transform: translateY(-50%) rotate(3deg); box-shadow: 0 0 40px rgba(0, 255, 65, 0.5); border: 1px solid #00FF41; opacity: 0; animation: cm-affiche-gen 1.2s cubic-bezier(.2,.8,.2,1) 7.4s forwards; }
+@keyframes cm-affiche-gen { from { opacity: 0; transform: translateY(-40%) rotate(10deg) scale(0.8); } to { opacity: 1; transform: translateY(-50%) rotate(3deg) scale(1); } }
+#cm-generique .fin { position: absolute; bottom: 4vh; width: 100%; text-align: center; color: #4fbf6a; font-size: 1.6vh; letter-spacing: 0.3em; z-index: 3; }
+
+/* Plan de salle */
+#cm-plan { position: fixed; inset: 0; z-index: 2147483000; background: rgba(0, 0, 0, 0.9); display: flex; align-items: center; justify-content: center; animation: cm-apparait 0.3s; font-family: 'Matrix Sans Video', monospace; }
+#cm-plan .boite { border: 1px solid #00FF41; background: #010603; padding: 22px 28px; box-shadow: 0 0 40px rgba(0, 255, 65, 0.35); max-width: 94vw; }
+#cm-plan h4 { margin: 0 0 4px; font-weight: 400; color: #E8FFE8; letter-spacing: 0.2em; font-size: 22px; }
+#cm-plan .sous { color: #7CFC9A; font-size: 16px; letter-spacing: 0.15em; margin-bottom: 18px; }
+#cm-plan .ecran-salle { height: 8px; margin: 0 40px 6px; background: linear-gradient(90deg, transparent, #E8FFE8, transparent); box-shadow: 0 0 25px #00FF41; border-radius: 50%; }
+#cm-plan .ecran-txt { text-align: center; color: #7CFC9A; font-size: 13px; letter-spacing: 0.5em; margin-bottom: 18px; }
+#cm-plan .rang { display: flex; align-items: center; gap: 5px; margin: 4px 0; justify-content: center; }
+#cm-plan .rang b { width: 18px; font-weight: 400; color: #4fbf6a; font-size: 15px; }
+#cm-plan .siege { width: 24px; height: 20px; border-radius: 5px 5px 2px 2px; border: 1px solid #00FF41; background: rgba(0, 255, 65, 0.08); cursor: pointer; transition: all 0.12s; }
+#cm-plan .siege:hover { background: #00FF41; box-shadow: 0 0 12px #00FF41; }
+#cm-plan .siege.pris { border-color: #6b1a1a; background: #3a0a0a; cursor: not-allowed; }
+#cm-plan .siege.choisi { background: #ffcc33; border-color: #ffcc33; box-shadow: 0 0 14px #ff9900; }
+#cm-plan .allee { width: 18px; }
+#cm-plan .bas { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; gap: 16px; }
+#cm-plan .legende { color: #7CFC9A; font-size: 15px; }
+#cm-plan button { font-family: 'Matrix Sans Video', monospace; font-size: 18px; letter-spacing: 0.15em; padding: 6px 18px; background: #000a02; color: #00FF41; border: 1px solid #00FF41; cursor: pointer; }
+#cm-plan button:hover { background: #00FF41; color: #000; }
+#cm-plan button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Agenda */
+#cm-sons button.agenda b { color: #E8FFE8; }
+#cm-agenda { position: fixed; top: 60px; right: 18px; z-index: 999996; width: 380px; max-height: 70vh; overflow: auto; padding: 14px 16px; background: rgba(0, 8, 2, 0.97);
+  border: 1px solid #00FF41; box-shadow: 0 0 30px rgba(0, 255, 65, 0.3); font-family: 'Matrix Sans Video', monospace; color: #C8FFD4; display: none; }
+#cm-agenda.ouvert { display: block; animation: cm-apparait 0.25s; }
+#cm-agenda h4 { margin: 0 0 10px; font-weight: 400; font-size: 20px; letter-spacing: 0.25em; color: #00FF41; }
+#cm-agenda .s { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed rgba(0, 255, 65, 0.25); font-size: 17px; }
+#cm-agenda .s small { display: block; color: #7CFC9A; font-size: 14px; }
+#cm-agenda .s button { font-family: inherit; background: #000a02; color: #00FF41; border: 1px solid #00FF41; padding: 2px 8px; cursor: pointer; }
+#cm-agenda .s button:hover { background: #00FF41; color: #000; }
+#cm-agenda .vide { color: #7CFC9A; font-size: 16px; }
+
+/* Succès */
+#cm-succes { position: fixed; right: 18px; bottom: 18px; z-index: 999996; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.cm-toast { display: flex; align-items: center; gap: 12px; min-width: 300px; padding: 10px 16px; background: rgba(10, 8, 0, 0.95); border: 1px solid #ffcc33;
+  box-shadow: 0 0 25px rgba(255, 190, 40, 0.45); font-family: 'Matrix Sans Video', monospace; color: #ffe7a3; animation: cm-toast 0.5s cubic-bezier(.2, .8, .2, 1), cm-toast-fin 0.5s 4.5s forwards; }
+.cm-toast .icone { font-size: 34px; filter: drop-shadow(0 0 8px #ff9900); }
+.cm-toast b { display: block; font-weight: 400; font-size: 15px; letter-spacing: 0.3em; color: #ffcc33; }
+.cm-toast span { font-size: 23px; color: #fff3cf; }
+.cm-toast small { display: block; font-size: 16px; color: #d9c48a; }
+@keyframes cm-toast { from { transform: translateX(120%); } }
+@keyframes cm-toast-fin { to { opacity: 0; transform: translateX(30px); } }
+#cm-trophees { position: fixed; top: 60px; right: 18px; z-index: 999996; width: 340px; max-height: 70vh; overflow: auto; padding: 14px 16px; background: rgba(5, 4, 0, 0.97);
+  border: 1px solid #ffcc33; box-shadow: 0 0 30px rgba(255, 190, 40, 0.35); font-family: 'Matrix Sans Video', monospace; color: #ffe7a3; display: none; }
+#cm-trophees.ouvert { display: block; animation: cm-apparait 0.25s; }
+#cm-trophees h4 { margin: 0 0 10px; font-weight: 400; font-size: 22px; letter-spacing: 0.25em; color: #ffcc33; }
+#cm-trophees .t { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px dashed rgba(255, 204, 51, 0.2); font-size: 19px; }
+#cm-trophees .t.verrou { opacity: 0.4; filter: grayscale(1); }
+#cm-trophees .t small { display: block; font-size: 15px; color: #c9b77e; }
+#cm-sons button.trophee { color: #ffcc33; border-color: #ffcc33; box-shadow: 0 0 14px rgba(255, 190, 40, 0.4); }
+#cm-sons button.trophee b { color: #fff3cf; text-shadow: 0 0 8px #ff9900; }
+
+/* Le monde réel */
+body.cm-reel .stApp { filter: grayscale(0.85) sepia(0.35) hue-rotate(170deg) saturate(1.4) brightness(0.92) contrast(1.08); transition: filter 0.6s; }
+body .stApp { transition: filter 0.6s; }
+body.cm-reel::before { background: #000 !important; }
+#cm-sons button.reel.actif { color: #9ec9ff; border-color: #6fa8ff; box-shadow: 0 0 14px rgba(80, 150, 255, 0.5); }
+
+/* Affiches en 3D */
+.carte-image { transition: transform 0.18s ease-out; will-change: transform; }
+.carte-image::after { content: ""; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0; transition: opacity 0.25s;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(232, 255, 232, 0.45), rgba(0, 255, 65, 0.12) 30%, transparent 60%); }
+.carte-image.incline::after { opacity: 1; }
+
+/* Il n'y a pas de cuillère */
+body.cm-cuillere .stApp { filter: url(#cm-tordre); }
+#cm-cuillere-msg { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: 999995; pointer-events: none; text-align: center;
+  font-family: 'Matrix Sans Video', monospace; color: #E8FFE8; font-size: min(7vw, 64px); letter-spacing: 0.1em; text-shadow: 0 0 14px #00FF41, 0 0 40px rgba(0, 255, 65, 0.6);
+  animation: cm-apparait 0.8s; }
+#cm-cuillere-msg small { display: block; font-size: 0.4em; color: #7CFC9A; letter-spacing: 0.3em; }
+
+/* Menu de navigation */
+#cm-menu { position: fixed; left: 10px; top: 50%; transform: translateY(-50%); z-index: 999992; display: flex; flex-direction: column; gap: 6px;
+  font-family: 'Matrix Sans Video', monospace; font-size: 19px; letter-spacing: 0.12em; opacity: 0; transition: opacity 0.6s; pointer-events: none; }
+#cm-menu.visible { opacity: 1; pointer-events: auto; }
+#cm-menu a { display: flex; align-items: center; gap: 8px; color: #4fbf6a; text-decoration: none; padding: 3px 8px; border-left: 2px solid rgba(0, 255, 65, 0.25);
+  background: rgba(0, 8, 2, 0.75); transition: all 0.2s; white-space: nowrap; overflow: hidden; max-width: 46px; }
+#cm-menu a span { opacity: 0; transition: opacity 0.2s; }
+#cm-menu:hover a { max-width: 220px; }
+#cm-menu:hover a span { opacity: 1; }
+#cm-menu a:hover, #cm-menu a.actif { color: #00FF41; border-left-color: #00FF41; text-shadow: 0 0 8px #00FF41; background: rgba(0, 30, 8, 0.9); }
+@media (max-width: 1100px) { #cm-menu { display: none; } }
+
+/* Chargement maison */
+.stApp[data-test-script-state="running"]::after { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓░░░░"; position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  z-index: 999992; font-family: 'Matrix Sans Video', monospace; font-size: 19px; letter-spacing: 0.15em; color: #00FF41; text-shadow: 0 0 8px #00FF41;
+  background: rgba(0, 10, 3, 0.9); border: 1px solid rgba(0, 255, 65, 0.6); padding: 3px 14px; animation: cm-charge 0.9s steps(1) infinite; }
+@keyframes cm-charge { 33% { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓▓▓░░"; } 66% { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓▓▓▓▓"; } }
+
+/* Agent Smith */
+#cm-agent { position: fixed; top: 0; left: 0; right: 0; z-index: 999994; pointer-events: none; display: flex; flex-direction: column; align-items: center;
+  padding: 14px; background: linear-gradient(rgba(60, 0, 0, 0.92), rgba(60, 0, 0, 0)); font-family: 'Matrix Sans Video', monospace; color: #ff3b3b;
+  text-shadow: 0 0 10px #ff0030; animation: cm-agent 0.5s ease-out; }
+#cm-agent b { font-weight: 400; font-size: 34px; letter-spacing: 0.2em; animation: clignote-agent 0.8s steps(1) infinite; }
+#cm-agent span { font-size: 19px; letter-spacing: 0.25em; color: #ffb3b3; }
+body.cm-agent .stApp { box-shadow: inset 0 0 160px rgba(255, 0, 40, 0.35); }
+@keyframes cm-agent { from { transform: translateY(-100%); } }
+@keyframes clignote-agent { 50% { opacity: 0.35; } }
+
+/* Déjà-vu */
+#cm-chat { position: fixed; bottom: 6vh; left: -220px; z-index: 999994; width: 190px; pointer-events: none; filter: drop-shadow(0 0 6px #00FF41) drop-shadow(0 0 2px #00FF41); }
+#cm-chat.passe { animation: cm-chat 3.2s linear forwards; }
+@keyframes cm-chat { to { left: calc(100vw + 40px); } }
+#cm-chat .patte { transform-box: fill-box; transform-origin: top center; animation: cm-patte 0.35s ease-in-out infinite alternate; }
+#cm-chat .patte.b { animation-delay: 0.175s; }
+@keyframes cm-patte { from { transform: rotate(18deg); } to { transform: rotate(-18deg); } }
+#cm-dejavu { position: fixed; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 999994; pointer-events: none; text-align: center;
+  font-family: 'Matrix Sans Video', monospace; color: #E8FFE8; text-shadow: 0 0 12px #00FF41; font-size: 40px; letter-spacing: 0.1em; animation: cm-apparait 0.6s; }
+#cm-dejavu small { display: block; font-size: 21px; color: #7CFC9A; letter-spacing: 0.25em; }
+@keyframes cm-apparait { from { opacity: 0; } }
+
+/* Construct */
+#cm-construct { position: fixed; inset: 0; z-index: 2147483000; background: radial-gradient(ellipse at 50% 35%, #ffffff 0%, #f3f3f3 55%, #dcdcdc 100%);
+  overflow: hidden; perspective: 900px; animation: cm-blanc 0.25s ease-out; cursor: pointer; }
+@keyframes cm-blanc { from { filter: brightness(3); } }
+#cm-construct .texte { position: absolute; top: 9%; left: 0; right: 0; text-align: center; font-family: 'Matrix Sans Video', monospace; color: #1a1a1a; font-size: 34px; letter-spacing: 0.08em; }
+#cm-construct .texte small { display: block; font-size: 20px; color: #777; letter-spacing: 0.3em; margin-top: 8px; }
+#cm-construct .rayons { position: absolute; left: 50%; top: 60%; transform-style: preserve-3d; }
+#cm-construct .rayon { position: absolute; display: flex; gap: 14px; transform-style: preserve-3d; }
+#cm-construct .rayon img { width: 92px; height: 138px; object-fit: cover; box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3); }
+#cm-construct.fin { animation: cm-fin-construct 0.6s ease forwards; }
+@keyframes cm-fin-construct { to { opacity: 0; } }
+
+/* Déconnexion : vieille télé qui s'éteint */
+.pied-fin { cursor: pointer !important; }
+.pied-fin:hover { color: #E8FFE8 !important; }
+body.cm-off .stApp { animation: cm-tv 0.9s ease-in forwards; }
+@keyframes cm-tv { 0% { transform: scale(1, 1); filter: brightness(1); } 55% { transform: scale(1, 0.004); filter: brightness(4); } 100% { transform: scale(0, 0.004); filter: brightness(8); } }
+#cm-sortie { position: fixed; inset: 0; z-index: 2147483000; background: #000; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
+  font-family: 'Matrix Sans Video', monospace; color: #00FF41; font-size: 34px; letter-spacing: 0.15em; text-shadow: 0 0 10px #00FF41; opacity: 0; animation: cm-apparait-sortie 0.3s 0.9s forwards; }
+#cm-sortie small { font-size: 20px; color: #7CFC9A; letter-spacing: 0.3em; }
+@keyframes cm-apparait-sortie { to { opacity: 1; } }
+
+/* Billet */
+#cm-billet { position: fixed; inset: 0; z-index: 2147483000; background: rgba(0, 0, 0, 0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; animation: cm-apparait 0.3s; }
+#cm-billet canvas { max-width: 92vw; box-shadow: 0 0 40px rgba(0, 255, 65, 0.45); animation: cm-imprime 0.9s steps(12); }
+@keyframes cm-imprime { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+#cm-billet .actions { display: flex; gap: 14px; }
+#cm-billet button { font-family: 'Matrix Sans Video', monospace; font-size: 22px; letter-spacing: 0.2em; color: #00FF41; background: #000a02; border: 1px solid #00FF41; padding: 6px 20px; }
+#cm-billet button:hover { background: #00FF41; color: #000; }
+
+#cm-sons { position: fixed; top: 14px; right: 18px; z-index: 999993; display: flex; gap: 8px; }
+#cm-sons button { position: static; z-index: 999993; font-family: 'Matrix Sans Video', monospace; font-size: 20px; letter-spacing: 0.2em;
+  color: #00FF41; background: rgba(0, 10, 3, 0.85); border: 1px solid #00FF41; padding: 4px 14px; box-shadow: 0 0 14px rgba(0, 255, 65, 0.45); transition: all 0.2s; }
+#cm-sons button b { font-weight: 400; color: #E8FFE8; text-shadow: 0 0 8px #00FF41; }
+#cm-sons button:hover { background: #00FF41; color: #000; }
+#cm-sons button:hover b { color: #000; text-shadow: none; }
+#cm-sons button.off { color: #4f8a5c; border-color: #2a6b3a; box-shadow: none; }
+#cm-sons button.off b { color: #ff3b3b; text-shadow: 0 0 8px #ff3b3b; }
+
+.cm-trace { position: fixed; z-index: 999990; pointer-events: none; font-family: 'Katakana Matrix', 'Matrix Sans Video', monospace;
   font-size: 15px; color: #00FF41; text-shadow: 0 0 8px #00FF41; transform: translate(-50%, -50%) scaleX(-1);
   animation: cm-trace 0.9s ease-out forwards; }
 @keyframes cm-trace { 0% { opacity: 0.95; } 100% { opacity: 0; transform: translate(-50%, 10px) scaleX(-1); } }
@@ -40,7 +210,7 @@ body.cm-glitch::after { content: ""; position: fixed; inset: 0; z-index: 999991;
 #cm-neo { position: fixed; inset: 0; z-index: 2147483000; background: rgba(0, 0, 0, 0.88); display: flex; align-items: center; justify-content: center;
   animation: cm-neo-in 0.4s ease-out; }
 #cm-neo canvas { position: absolute; inset: 0; }
-#cm-neo .msg { position: relative; font-family: 'VT323', monospace; color: #ff3b3b; font-size: min(7vw, 84px); letter-spacing: 0.08em;
+#cm-neo .msg { position: relative; font-family: 'Matrix Sans Video', monospace; color: #ff3b3b; font-size: min(7vw, 84px); letter-spacing: 0.08em;
   text-shadow: 0 0 14px #ff0030, 0 0 45px rgba(255, 0, 48, 0.6); text-align: center; line-height: 1.3; }
 #cm-neo .msg small { display: block; font-size: 0.4em; color: #ffb3b3; letter-spacing: 0.3em; }
 #cm-neo.fin { animation: cm-neo-out 0.8s ease forwards; }
@@ -79,12 +249,25 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
   let coupe = false;
   try { coupe = parent.localStorage.getItem('cinemaniak-son') === 'off'; } catch (err) {}
 
-  const bouton = doc.createElement('button');
-  bouton.id = 'cm-son';
-  bouton.style.display = 'none';
-  doc.body.appendChild(bouton);
-  function afficher() { bouton.innerHTML = coupe ? '♪ SON <b>OFF</b>' : '♪ SON <b>ON</b>'; bouton.classList.toggle('off', coupe); }
+  let sonsCoupes = false;
+  try { sonsCoupes = parent.localStorage.getItem('cinemaniak-sons') === 'off'; } catch (err) {}
+
+  const barreSons = doc.createElement('div');
+  barreSons.id = 'cm-sons';
+  barreSons.innerHTML = '<button class="sons"></button><button class="musique" style="display:none"></button>';
+  doc.body.appendChild(barreSons);
+  const bouton = barreSons.querySelector('.musique');
+  const boutonSons = barreSons.querySelector('.sons');
+  function afficher() {
+    bouton.innerHTML = '♪ MUSIQUE <b>' + (coupe ? 'OFF' : 'ON') + '</b>'; bouton.classList.toggle('off', coupe);
+    boutonSons.innerHTML = '🔊 SONS <b>' + (sonsCoupes ? 'OFF' : 'ON') + '</b>'; boutonSons.classList.toggle('off', sonsCoupes);
+  }
   afficher();
+  boutonSons.addEventListener('click', () => {
+    sonsCoupes = !sonsCoupes;
+    try { parent.localStorage.setItem('cinemaniak-sons', sonsCoupes ? 'off' : 'on'); } catch (err) {}
+    afficher();
+  });
 
   function fondu(cible) {
     const pas = parent.setInterval(() => {
@@ -114,6 +297,666 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
     else parent.setTimeout(attendre, 200);
   })();
 
+
+  // ================== SONS D'INTERFACE ==================
+  let ctxUI = null;
+  function ui() {
+    if (sonsCoupes) return null;
+    try { if (!ctxUI) ctxUI = new (parent.AudioContext || parent.webkitAudioContext)(); } catch (err) { return null; }
+    return ctxUI;
+  }
+  function tic(freq, duree, volume) {
+    const ac = ui(); if (!ac) return;
+    const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'square'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(volume, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + duree);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + duree + 0.02);
+  }
+  let dernierSurvol = null;
+  doc.addEventListener('mouseover', (e) => {
+    if (!parent.__introDebut) return;
+    const cible = e.target.closest && e.target.closest('button, .carte, #cm-menu a, .pied-fin');
+    if (cible && cible !== dernierSurvol) tic(2400, 0.025, 0.025);
+    dernierSurvol = cible;
+  });
+  doc.addEventListener('click', (e) => {
+    if (!parent.__introDebut) return;
+    if (e.target.closest && e.target.closest('button, #cm-menu a')) { tic(900, 0.05, 0.06); parent.setTimeout(() => tic(1500, 0.04, 0.04), 45); }
+  });
+  parent.cinemaniakTic = () => { tic(900, 0.05, 0.06); parent.setTimeout(() => tic(1500, 0.04, 0.04), 45); };
+
+  // ================== MENU DE NAVIGATION ==================
+  const menu = doc.createElement('nav');
+  menu.id = 'cm-menu';
+  const sections = [['sec-tableau', 'SÉANCES'], ['sec-affiche', "À L'AFFICHE"], ['sec-salle9', 'SALLE 9'], ['sec-oracle', 'ORACLE'], ['sec-recherche', 'RECHERCHE'], ['sec-recos', 'RECOMMANDÉS'], ['sec-liste', 'MA LISTE'], ['sec-matrice', 'MATRICE'], ['sec-duel', 'DUEL'], ['sec-jeu', 'DÉCRYPTAGE'], ['sec-terminal', 'TERMINAL'], ['sec-machines', 'MACHINES']];
+  menu.innerHTML = sections.map(([id, nom], i) => `<a href="#" data-cible="${id}">[${String(i + 1).padStart(2, '0')}]<span>${nom}</span></a>`).join('');
+  doc.body.appendChild(menu);
+  menu.addEventListener('click', (e) => {
+    const lien = e.target.closest('a'); if (!lien) return;
+    e.preventDefault();
+    const cible = doc.getElementById(lien.dataset.cible);
+    if (cible) cible.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    force = lien.dataset.cible;
+  });
+  // La section cliquée reste allumée jusqu'à ce que la personne fasse défiler la page elle-même
+  let force = null;
+  ['wheel', 'touchmove'].forEach(ev => doc.addEventListener(ev, () => { force = null; }, { passive: true }));
+  doc.addEventListener('keydown', (e) => { if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) force = null; });
+  parent.setInterval(() => {
+    menu.classList.toggle('visible', !!parent.__introDebut && Date.now() - parent.__introDebut > 6500);
+    let actif = null;
+    // Tout en bas de la page, les dernières sections ne peuvent pas remonter assez haut : on prend la dernière visible
+    const pied = doc.querySelector('.pied');
+    const enBas = pied && pied.getBoundingClientRect().bottom <= parent.innerHeight + 40;
+    const limite = enBas ? parent.innerHeight * 0.85 : parent.innerHeight * 0.4;
+    sections.forEach(([id]) => { const el = doc.getElementById(id); if (el && el.getBoundingClientRect().top < limite) actif = id; });
+    if (force && doc.getElementById(force)) actif = force;
+    menu.querySelectorAll('a').forEach(a => a.classList.toggle('actif', a.dataset.cible === actif));
+  }, 300);
+
+  // ================== AGENT SMITH ==================
+  let dernierMouvement = Date.now(), agent = null;
+  function bouge() {
+    dernierMouvement = Date.now();
+    if (agent) { agent.remove(); agent = null; doc.body.classList.remove('cm-agent'); }
+  }
+  ['mousemove', 'keydown', 'scroll', 'wheel', 'click'].forEach(ev => doc.addEventListener(ev, bouge, true));
+  parent.cinemaniakBouge = bouge;
+  parent.setInterval(() => {
+    if (agent || !parent.__introDebut || doc.getElementById('cm-neo')) return;
+    if (Date.now() - dernierMouvement > 30000) {
+      agent = doc.createElement('div'); agent.id = 'cm-agent';
+      agent.innerHTML = '<b>⚠ AGENT DÉTECTÉ DANS LA ZONE</b><span>BOUGE TA SOURIS POUR LE SEMER</span>';
+      doc.body.appendChild(agent); doc.body.classList.add('cm-agent');
+      tic(330, 0.25, 0.06); parent.setTimeout(() => tic(330, 0.25, 0.06), 400);
+    }
+  }, 1000);
+
+  // ================== DÉJÀ-VU ==================
+  const svgChat = `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" fill="#000">
+    <path d="M30 70 C10 60 5 40 15 25 C18 20 24 22 22 28 C15 42 20 58 36 62 Z"/>
+    <ellipse cx="85" cy="68" rx="52" ry="22"/>
+    <circle cx="145" cy="50" r="19"/>
+    <path d="M131 38 L134 18 L146 33 Z"/><path d="M150 33 L160 15 L164 38 Z"/>
+    <rect class="patte" x="48" y="80" width="9" height="34" rx="4"/>
+    <rect class="patte b" x="62" y="80" width="9" height="34" rx="4"/>
+    <rect class="patte b" x="106" y="80" width="9" height="34" rx="4"/>
+    <rect class="patte" x="120" y="80" width="9" height="34" rx="4"/>
+    <circle cx="151" cy="48" r="2.6" fill="#00FF41"/></svg>`;
+  function passage(fin) {
+    const chat = doc.createElement('div'); chat.id = 'cm-chat'; chat.innerHTML = svgChat;
+    doc.body.appendChild(chat); void chat.offsetWidth; chat.classList.add('passe');
+    parent.setTimeout(() => { chat.remove(); if (fin) fin(); }, 3300);
+  }
+  function dejaVu() {
+    if (doc.getElementById('cm-chat')) return;
+    succes('dejavu');
+    passage(() => parent.setTimeout(() => {
+      passage();
+      const msg = doc.createElement('div'); msg.id = 'cm-dejavu';
+      msg.innerHTML = 'UN DÉJÀ-VU…<small>ILS ONT MODIFIÉ LA MATRICE</small>';
+      doc.body.appendChild(msg);
+      if (parent.cinemaniakGlitch) parent.cinemaniakGlitch();
+      parent.setTimeout(() => msg.remove(), 3600);
+    }, 250));
+  }
+  // De temps en temps, tout seul (très rarement)
+  // Une seule fois maximum par visite, jamais avant 3 minutes, et seulement avec un peu de chance
+  let dejaVuFait = false;
+  parent.setInterval(() => {
+    if (dejaVuFait || !parent.__introDebut || doc.hidden || Date.now() - parent.__introDebut < 180000) return;
+    if (Math.random() < 0.03) { dejaVuFait = true; dejaVu(); }
+  }, 30000);
+
+  // ================== CONSTRUCT ==================
+  function construct() {
+    if (doc.getElementById('cm-construct')) return;
+    succes('construct');
+    const salle = doc.createElement('div'); salle.id = 'cm-construct';
+    salle.innerHTML = '<div class="texte"><span class="ecrit"></span><small></small></div><div class="rayons"></div>';
+    doc.body.appendChild(salle);
+    tic(200, 0.6, 0.08);
+
+    const lignes = ['CECI EST LA CONSTRUCT. NOTRE PROGRAMME DE CHARGEMENT.', 'DE QUOI AS-TU BESOIN ?', 'DES FILMS. BEAUCOUP DE FILMS.'];
+    const ecrit = salle.querySelector('.ecrit'); let l = 0;
+    (function ligne() {
+      const texte = lignes[l]; let n = 0;
+      const frappe = parent.setInterval(() => {
+        n++; ecrit.textContent = texte.slice(0, n);
+        if (n >= texte.length) { parent.clearInterval(frappe); l++; if (l < lignes.length) parent.setTimeout(ligne, 900); else rayons(); }
+      }, 45);
+    })();
+
+    function rayons() {
+      salle.querySelector('small').textContent = 'CLIQUE POUR REVENIR DANS LA MATRICE';
+      const images = [...new Set([...doc.querySelectorAll('.carte img')].map(i => i.src))];
+      if (!images.length) return;
+      const zone = salle.querySelector('.rayons');
+      for (let r = 0; r < 4; r++) {
+        const rayon = doc.createElement('div'); rayon.className = 'rayon';
+        const cote = r % 2 === 0 ? -1 : 1, profondeur = Math.floor(r / 2);
+        rayon.style.transform = `translateX(${cote * 330 - 46}px) translateZ(${-profondeur * 380}px) rotateY(${-cote * 62}deg)`;
+        rayon.style.top = (-70 - profondeur * 20) + 'px';
+        rayon.innerHTML = images.slice(r * 4, r * 4 + 6).map(src => `<img src="${src}">`).join('');
+        rayon.animate([{ transform: rayon.style.transform + ' translateX(' + (-cote * 900) + 'px)', opacity: 0 }, { transform: rayon.style.transform, opacity: 1 }],
+          { duration: 700, delay: r * 220, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+        zone.appendChild(rayon);
+      }
+    }
+    salle.addEventListener('click', () => { salle.classList.add('fin'); parent.setTimeout(() => salle.remove(), 600); });
+    parent.setTimeout(() => { if (salle.isConnected) { salle.classList.add('fin'); parent.setTimeout(() => salle.remove(), 600); } }, 14000);
+  }
+
+  // ================== DÉCONNEXION ==================
+  function sonnerie(ac, t) {
+    [440, 480].forEach(freq => {
+      const o = ac.createOscillator(); o.frequency.value = freq;
+      const g = ac.createGain(); g.gain.value = 0;
+      for (let k = 0; k < 2; k++) {
+        const d = t + k * 1.1;
+        for (let m = 0; m < 10; m++) { g.gain.setValueAtTime(0.05, d + m * 0.05); g.gain.setValueAtTime(0.0, d + m * 0.05 + 0.025); }
+      }
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 2.3);
+    });
+  }
+  doc.addEventListener('click', (e) => {
+    if (!(e.target.closest && e.target.closest('.pied-fin'))) return;
+    if (doc.body.classList.contains('cm-off')) return;
+    let ac = null;
+    try { ac = new (parent.AudioContext || parent.webkitAudioContext)(); } catch (err) {}
+    if (ac && !sonsCoupes) sonnerie(ac, ac.currentTime + 0.05);
+    fondu(0);
+    const fin = doc.querySelector('.pied-fin'); fin.textContent = '> sortie trouvée… décroche le téléphone';
+    parent.setTimeout(() => {
+      doc.body.classList.add('cm-off');
+      if (ac && !sonsCoupes) {
+        const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+        o.frequency.setValueAtTime(1800, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.8);
+        g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+        o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 1);
+      }
+      const sortie = doc.createElement('div'); sortie.id = 'cm-sortie';
+      sortie.innerHTML = 'DÉCONNECTÉ DE LA MATRICE<small>RECONNEXION…</small>';
+      doc.body.appendChild(sortie);
+      parent.setTimeout(() => parent.location.reload(), 2600);
+    }, 2400);
+  });
+
+  // ================== BILLET DE CINÉMA ==================
+  parent.cinemaniakBillet = function (b) {
+    succes('billet');
+    const fond = doc.createElement('div'); fond.id = 'cm-billet';
+    const toile = doc.createElement('canvas'); toile.width = 1000; toile.height = 380;
+    fond.appendChild(toile);
+    fond.insertAdjacentHTML('beforeend', '<div class="actions"><button class="telecharger">⬇ TÉLÉCHARGER</button><button class="fermer">✕ FERMER</button></div>');
+    doc.body.appendChild(fond);
+    const c = toile.getContext('2d');
+    const vert = '#00FF41', pale = '#7CFC9A', blanc = '#E8FFE8';
+    function dessiner(affiche) {
+      c.fillStyle = '#000'; c.fillRect(0, 0, 1000, 380);
+      c.globalAlpha = 0.08; c.fillStyle = vert; c.font = '22px "Katakana Matrix", monospace';
+      for (let x = 0; x < 1000; x += 24) for (let y = 20; y < 380; y += 26) if (Math.random() > 0.55) c.fillText(signes[Math.floor(Math.random() * signes.length)], x, y);
+      c.globalAlpha = 1;
+      c.strokeStyle = vert; c.lineWidth = 3; c.shadowColor = vert; c.shadowBlur = 14; c.strokeRect(10, 10, 980, 360); c.shadowBlur = 0;
+      c.setLineDash([8, 8]); c.lineWidth = 2; c.beginPath(); c.moveTo(760, 18); c.lineTo(760, 362); c.stroke(); c.setLineDash([]);
+      let x0 = 40;
+      if (affiche) { c.drawImage(affiche, 40, 40, 200, 300); c.strokeStyle = vert; c.lineWidth = 2; c.strokeRect(40, 40, 200, 300); x0 = 270; }
+      c.fillStyle = pale; c.font = '24px "Matrix Sans Video"'; c.fillText('CINÉMANIAK · ANGERS · BILLET D\'ACCÈS', x0, 60);
+      c.fillStyle = blanc; c.shadowColor = vert; c.shadowBlur = 12;
+      let titre = b.titre.toUpperCase(), taille = 58;
+      c.font = taille + 'px "Matrix Sans Video"';
+      while (c.measureText(titre).width > 740 - x0 && taille > 30) { taille -= 4; c.font = taille + 'px "Matrix Sans Video"'; }
+      c.fillText(titre, x0, 125); c.shadowBlur = 0;
+      const infos = [['JOUR', b.jour], ['HEURE', b.heure], ['SALLE', String(b.salle)], ['PLACE', b.place]];
+      infos.forEach(([nom, val], i) => {
+        const x = x0 + (i % 2) * 230, y = 185 + Math.floor(i / 2) * 80;
+        c.fillStyle = pale; c.font = '22px "Matrix Sans Video"'; c.fillText(nom, x, y);
+        c.fillStyle = vert; c.font = '44px "Matrix Sans Video"'; c.shadowColor = vert; c.shadowBlur = 8; c.fillText(val, x, y + 40); c.shadowBlur = 0;
+      });
+      c.fillStyle = pale; c.font = '20px "Matrix Sans Video"'; c.fillText('PRÉSENTE CE BILLET À L\'ENTRÉE · ' + b.ref, x0, 350);
+      c.save(); c.translate(880, 190); c.rotate(-Math.PI / 2);
+      c.fillStyle = pale; c.font = '22px "Matrix Sans Video"'; c.textAlign = 'center'; c.fillText('ADMIT ONE · ' + b.ref, 0, -88); c.restore();
+      for (let x = 790, k = 0; x < 960; k++) { const w = 1 + Math.floor(Math.random() * 4); if (k % 2 === 0) { c.fillStyle = vert; c.fillRect(x, 60, w, 260); } x += w; }
+    }
+    if (b.affiche) {
+      const img = new parent.Image(); img.crossOrigin = 'anonymous';
+      img.onload = () => dessiner(img); img.onerror = () => dessiner(null); img.src = b.affiche;
+    } else dessiner(null);
+    fond.querySelector('.fermer').addEventListener('click', () => fond.remove());
+    fond.addEventListener('click', (e) => { if (e.target === fond) fond.remove(); });
+    fond.querySelector('.telecharger').addEventListener('click', () => {
+      try {
+        const lien = doc.createElement('a'); lien.download = 'billet-cinemaniak.png'; lien.href = toile.toDataURL('image/png');
+        doc.body.appendChild(lien); lien.click(); lien.remove();
+      } catch (err) { fond.querySelector('.telecharger').textContent = 'CLIC DROIT > ENREGISTRER L\'IMAGE'; }
+    });
+  };
+
+
+  // ================== AFFICHES EN 3D ==================
+  let carteInclinee = null;
+  function redresser() {
+    if (carteInclinee) { carteInclinee.style.transform = ''; carteInclinee.classList.remove('incline'); carteInclinee = null; }
+  }
+  doc.addEventListener('mousemove', (e) => {
+    const image = e.target.closest && e.target.closest('.carte-image');
+    if (image !== carteInclinee) redresser();
+    if (!image) return;
+    const r = image.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+    image.style.transform = `perspective(700px) rotateY(${(px - 0.5) * 24}deg) rotateX(${(0.5 - py) * 24}deg) scale(1.04)`;
+    image.style.setProperty('--gx', (px * 100) + '%');
+    image.style.setProperty('--gy', (py * 100) + '%');
+    image.classList.add('incline');
+    carteInclinee = image;
+  });
+
+  // ================== COMPTES À REBOURS ==================
+  function prochain(jourSemaine, heure, minute) {
+    const maintenant = new Date(), cible = new Date(maintenant);
+    cible.setHours(heure, minute, 0, 0);
+    let ecart = (jourSemaine - maintenant.getDay() + 7) % 7;
+    cible.setDate(maintenant.getDate() + ecart);
+    if (cible <= maintenant) cible.setDate(cible.getDate() + 7);
+    return cible;
+  }
+  function format(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const j = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+    const deux = (n) => String(n).padStart(2, '0');
+    return (j ? j + 'J ' : '') + deux(h) + ':' + deux(m) + ':' + deux(sec);
+  }
+  parent.cinemaniakFormat = format;
+  parent.setInterval(() => {
+    doc.querySelectorAll('.cm-compte').forEach(el => {
+      const cible = el.dataset.cible === 'jeudi' ? prochain(4, 21, 0) : prochain(0, 23, 59);
+      el.textContent = format(cible - new Date());
+    });
+  }, 1000);
+
+  // ================== IL N'Y A PAS DE CUILLÈRE ==================
+  const filtreSvg = doc.createElement('div');
+  filtreSvg.innerHTML = '<svg width="0" height="0" style="position:absolute"><filter id="cm-tordre" x="-10%" y="-10%" width="120%" height="120%">' +
+    '<feTurbulence id="cm-turb" type="fractalNoise" baseFrequency="0.003 0.009" numOctaves="2" seed="4"/>' +
+    '<feDisplacementMap id="cm-dep" in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></svg>';
+  doc.body.appendChild(filtreSvg);
+  function cuillere() {
+    if (doc.body.classList.contains('cm-cuillere')) return;
+    succes('cuillere');
+    doc.body.classList.add('cm-cuillere');
+    const msg = doc.createElement('div'); msg.id = 'cm-cuillere-msg';
+    msg.innerHTML = 'IL N\'Y A PAS DE CUILLÈRE.<small>C\'EST TOI QUI TE PLIES</small>';
+    doc.body.appendChild(msg);
+    const dep = doc.getElementById('cm-dep'), turb = doc.getElementById('cm-turb');
+    const debut = performance.now(), duree = 4500;
+    const ac = ui();
+    if (ac) {
+      const t = ac.currentTime, o = ac.createOscillator(), lfo = ac.createOscillator(), prof = ac.createGain(), g = ac.createGain();
+      o.type = 'sine'; o.frequency.value = 220; lfo.frequency.value = 5; prof.gain.value = 40;
+      lfo.connect(prof); prof.connect(o.frequency);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + 4.4);
+      o.frequency.linearRampToValueAtTime(110, t + 4.4);
+      o.connect(g); g.connect(ac.destination); o.start(t); lfo.start(t); o.stop(t + 4.5); lfo.stop(t + 4.5);
+    }
+    (function anime(maintenant) {
+      const p = Math.min(1, (maintenant - debut) / duree);
+      const force = Math.sin(p * Math.PI);
+      dep.setAttribute('scale', (force * 70).toFixed(1));
+      turb.setAttribute('baseFrequency', (0.003 + 0.002 * Math.sin(p * 12)).toFixed(4) + ' ' + (0.009 + 0.004 * Math.cos(p * 9)).toFixed(4));
+      if (p < 1) parent.requestAnimationFrame(anime);
+      else { doc.body.classList.remove('cm-cuillere'); msg.remove(); dep.setAttribute('scale', '0'); }
+    })(debut);
+  }
+
+
+  // ================== SUCCÈS ==================
+  const TROPHEES = {
+    eveil: ['🟢', "L'ÉVEIL", 'Se connecter à la Matrice'],
+    pilule: ['💊', 'LE CHOIX', 'Prendre une pilule'],
+    cinephile: ['🎞️', 'CINÉPHILE', 'Ouvrir 10 dossiers de films'],
+    vote: ['🗳️', 'CITOYEN DE SION', 'Voter pour la Salle 9'],
+    billet: ['🎟️', "TICKET D'OR", 'Imprimer un billet'],
+    oracle: ['🔮', 'ELLE AVAIT RAISON', "Consulter l'Oracle"],
+    operateur: ['💻', 'OPÉRATEUR', 'Utiliser le terminal'],
+    decrypte: ['🧩', 'DÉCODEUR', 'Finir une partie de Décryptage'],
+    reel: ['🌍', 'LE DÉSERT DU RÉEL', 'Voir le monde réel'],
+    neo: ['🐇', 'LAPIN BLANC', 'Easter egg trouvé'],
+    construct: ['🏛️', 'LA CONSTRUCT', 'Easter egg trouvé'],
+    dejavu: ['🐈‍⬛', 'DÉJÀ-VU', 'Easter egg trouvé'],
+    cuillere: ['🥄', "PAS DE CUILLÈRE", 'Easter egg trouvé'],
+    elu: ['🕶️', "L'ÉLU", 'Trouver les 4 easter eggs'],
+    operateur5: ['🔐', 'NIVEAU 5', 'Se connecter en opérateur'],
+    realisateur: ['🎬', 'RÉALISATEUR', 'Lancer le générique d\'un film'],
+    premierrang: ['🪑', 'PREMIER RANG', 'Réserver une place au rang A'],
+    agenda: ['📅', 'AGENDA DE MINISTRE', 'Réserver 3 séances'],
+  };
+  let obtenus = [];
+  // Les succès repartent de zéro à chaque visite du site
+  try { parent.localStorage.removeItem('cinemaniak-succes'); parent.localStorage.removeItem('cinemaniak-dossiers'); } catch (err) {}
+  const zoneToasts = doc.createElement('div'); zoneToasts.id = 'cm-succes'; doc.body.appendChild(zoneToasts);
+  const boutonTrophees = doc.createElement('button'); boutonTrophees.className = 'trophee';
+  barreSons.insertBefore(boutonTrophees, barreSons.firstChild);
+  const panneau = doc.createElement('div'); panneau.id = 'cm-trophees'; doc.body.appendChild(panneau);
+  function majTrophees() {
+    boutonTrophees.innerHTML = '🏆 <b>' + obtenus.length + '/' + Object.keys(TROPHEES).length + '</b>';
+    panneau.innerHTML = '<h4>&gt; SUCCÈS</h4>' + Object.entries(TROPHEES).map(([cle, [icone, nom, texte]]) => {
+      const ok = obtenus.includes(cle);
+      return `<div class="t ${ok ? '' : 'verrou'}"><span>${ok ? icone : '🔒'}</span><div>${ok ? nom : '???'}<small>${texte}</small></div></div>`;
+    }).join('');
+  }
+  majTrophees();
+  boutonTrophees.addEventListener('click', () => panneau.classList.toggle('ouvert'));
+  function succes(cle) {
+    if (!TROPHEES[cle] || obtenus.includes(cle)) return;
+    obtenus.push(cle);
+    try { parent.localStorage.setItem('cinemaniak-succes', JSON.stringify(obtenus)); } catch (err) {}
+    majTrophees();
+    const [icone, nom] = TROPHEES[cle];
+    const toast = doc.createElement('div'); toast.className = 'cm-toast';
+    toast.innerHTML = `<div class="icone">${icone}</div><div><b>SUCCÈS DÉBLOQUÉ</b><span>${nom}</span><small>${obtenus.length} / ${Object.keys(TROPHEES).length}</small></div>`;
+    zoneToasts.appendChild(toast);
+    parent.setTimeout(() => toast.remove(), 5100);
+    tic(1046, 0.12, 0.06); parent.setTimeout(() => tic(1568, 0.25, 0.06), 120);
+    if (['neo', 'construct', 'dejavu', 'cuillere'].every(c => obtenus.includes(c))) parent.setTimeout(() => succes('elu'), 1200);
+  }
+  parent.cinemaniakSucces = succes;
+  (function attendreEveil() {
+    if (parent.__introDebut) parent.setTimeout(() => succes('eveil'), 7000);
+    else parent.setTimeout(attendreEveil, 300);
+  })();
+  let dossiers = 0;
+  parent.cinemaniakDossier = () => {
+    dossiers++;
+    try { parent.localStorage.setItem('cinemaniak-dossiers', String(dossiers)); } catch (err) {}
+    if (dossiers >= 10) succes('cinephile');
+  };
+  doc.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('button');
+    if (!b) return;
+    if (b.closest('.st-key-pilule_bleue, .st-key-pilule_rouge')) succes('pilule');
+    if (b.closest('.st-key-consulter_oracle')) succes('oracle');
+    if (/VOTER/.test(b.innerText || '')) succes('vote');
+  }, true);
+  doc.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.closest && e.target.closest('.st-key-terminal')) succes('operateur');
+  }, true);
+
+  // ================== CLIQUETIS DU TABLEAU ==================
+  parent.cinemaniakCliquetis = () => {
+    const ac = ui(); if (!ac) return;
+    for (let k = 0; k < 3; k++) {
+      const t = ac.currentTime + k * 0.03 + Math.random() * 0.02;
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'square'; o.frequency.value = 2800 + Math.random() * 1500;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.02, t + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.018);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.03);
+    }
+  };
+
+  // ================== LE MONDE RÉEL ==================
+  const boutonReel = doc.createElement('button'); boutonReel.className = 'reel';
+  barreSons.insertBefore(boutonReel, barreSons.firstChild);
+  let reel = false;
+  function majReel() { boutonReel.innerHTML = reel ? '🌍 <b>RÉEL</b>' : '🟢 <b>MATRICE</b>'; boutonReel.classList.toggle('actif', reel); }
+  majReel();
+  boutonReel.addEventListener('click', () => {
+    reel = !reel;
+    if (parent.cinemaniakGlitch) parent.cinemaniakGlitch();
+    parent.setTimeout(() => doc.body.classList.toggle('cm-reel', reel), 150);
+    majReel();
+    if (reel) succes('reel');
+    const ac = ui();
+    if (ac) {
+      const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(reel ? 900 : 60, t); o.frequency.exponentialRampToValueAtTime(reel ? 60 : 900, t + 0.4);
+      g.gain.setValueAtTime(0.06, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.5);
+    }
+  });
+
+  // ================== LA PLUIE QUI DANSE ==================
+  // On écoute la musique en direct : les basses font accélérer et briller la pluie
+  let analyse = null, donneesSon = null;
+  parent.__cmRythme = 0;
+  function brancherAnalyse() {
+    if (analyse) return;
+    try {
+      const ac = new (parent.AudioContext || parent.webkitAudioContext)();
+      const source = ac.createMediaElementSource(audio);
+      analyse = ac.createAnalyser(); analyse.fftSize = 256; analyse.smoothingTimeConstant = 0.6;
+      source.connect(analyse); analyse.connect(ac.destination);
+      donneesSon = new Uint8Array(analyse.frequencyBinCount);
+      if (ac.state === 'suspended') ac.resume();
+    } catch (err) { analyse = null; }
+  }
+  audio.addEventListener('play', brancherAnalyse);
+  let gouttesAnim = [], derniereRecherche = 0;
+  (function danser(t) {
+    let rythme = 0;
+    if (analyse && !audio.paused) {
+      analyse.getByteFrequencyData(donneesSon);
+      let basses = 0; for (let k = 1; k < 8; k++) basses += donneesSon[k];
+      rythme = Math.max(0, (basses / 7 / 255 - 0.45) / 0.55);
+    }
+    parent.__cmRythme = parent.__cmRythme * 0.7 + rythme * 0.3;
+    if (t - derniereRecherche > 3000) {
+      derniereRecherche = t;
+      gouttesAnim = doc.getAnimations ? doc.getAnimations().filter(a => a.animationName === 'tombe') : [];
+    }
+    const r = parent.__cmRythme;
+    gouttesAnim.forEach(a => { a.playbackRate = 1 + r * 2.5; });
+    const pluie = doc.querySelector('.pluie');
+    if (pluie) pluie.style.filter = r > 0.02 ? `brightness(${1 + r * 2.2})` : '';
+    parent.requestAnimationFrame(danser);
+  })(0);
+
+
+  // ================== ÉVÉNEMENTS DÉCLENCHÉS PAR L'OPÉRATEUR ==================
+  let evenementsVus = [];
+  try { evenementsVus = JSON.parse(parent.localStorage.getItem('cinemaniak-evenements') || '[]'); } catch (err) {}
+  parent.setInterval(() => {
+    const el = doc.getElementById('cm-evenement');
+    if (!el || !parent.__introDebut || Date.now() - parent.__introDebut < 7000) return;
+    const id = el.dataset.id, effet = el.dataset.effet, temps = Number(el.dataset.temps || 0);
+    if (!id || evenementsVus.includes(id)) return;
+    evenementsVus.push(id);
+    try { parent.localStorage.setItem('cinemaniak-evenements', JSON.stringify(evenementsVus.slice(-20))); } catch (err) {}
+    if (Date.now() / 1000 - temps > 600) return;  // un effet de plus de 10 minutes est périmé
+    if (effet === 'neo') reveil();
+    else if (effet === 'construct') construct();
+    else if (effet === 'dejavu') dejaVu();
+    else if (effet === 'cuillere') cuillere();
+    else if (effet === 'glitch') { for (let k = 0; k < 4; k++) parent.setTimeout(() => parent.cinemaniakGlitch(), k * 450); }
+    else if (effet === 'reel') boutonReel.click();
+    else if (effet === 'agent') dernierMouvement = 0;
+  }, 1500);
+
+  // ================== GÉNÉRIQUE D'UN FILM ==================
+  parent.cinemaniakGenerique = function (f) {
+    if (doc.getElementById('cm-generique')) return;
+    succes('realisateur');
+    fondu(0.03);
+    const g = doc.createElement('div'); g.id = 'cm-generique';
+    g.innerHTML = `<div class="fond" style="background-image:url('${f.fond || f.affiche}')"></div><div class="voile"></div><div class="bandes"></div>
+      <div class="presente">LE CINÉMANIAK PRÉSENTE</div><div class="titre"></div><div class="accroche"></div>
+      <div class="infos">${f.annee} · ${f.duree} MIN · ${f.genres.join(' · ')}</div>
+      ${f.affiche ? `<img class="affiche" src="${f.affiche}">` : ''}<div class="fin">CLIQUE POUR QUITTER LE GÉNÉRIQUE</div>`;
+    doc.body.appendChild(g);
+    const titre = g.querySelector('.titre'), accroche = g.querySelector('.accroche');
+    // Le titre se décode
+    let revele = 0;
+    parent.setTimeout(() => {
+      const dec = parent.setInterval(() => {
+        titre.textContent = f.titre.split('').map((l, i) => (i < revele || l === ' ') ? l : signes[Math.floor(Math.random() * signes.length)]).join('');
+        revele += Math.max(0.3, f.titre.length / 30);
+        if (revele > f.titre.length) { parent.clearInterval(dec); titre.textContent = f.titre; }
+      }, 50);
+    }, 3200);
+    // L'accroche s'écrit
+    const texte = f.accroche ? '« ' + f.accroche + ' »' : '';
+    let n = 0;
+    parent.setTimeout(() => { const ecr = parent.setInterval(() => { n++; accroche.textContent = texte.slice(0, n); if (n >= texte.length) parent.clearInterval(ecr); }, 40); }, 4800);
+    // Une nappe de son qui monte, comme au début d'un film
+    const ac = ui();
+    if (ac) {
+      const t = ac.currentTime;
+      [55, 82.5, 110, 165].forEach((fr, i) => {
+        const o = ac.createOscillator(), gg = ac.createGain(); o.type = i % 2 ? 'triangle' : 'sawtooth'; o.frequency.value = fr;
+        const fl = ac.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.setValueAtTime(200, t); fl.frequency.linearRampToValueAtTime(1800, t + 3.2);
+        gg.gain.setValueAtTime(0.0001, t); gg.gain.exponentialRampToValueAtTime(0.03, t + 3.2); gg.gain.exponentialRampToValueAtTime(0.0001, t + 11);
+        o.connect(fl); fl.connect(gg); gg.connect(ac.destination); o.start(t); o.stop(t + 11.2);
+      });
+      const b = ac.createOscillator(), gb = ac.createGain(); b.frequency.setValueAtTime(120, t + 3.2); b.frequency.exponentialRampToValueAtTime(35, t + 4.4);
+      gb.gain.setValueAtTime(0.0001, t + 3.2); gb.gain.exponentialRampToValueAtTime(0.6, t + 3.22); gb.gain.exponentialRampToValueAtTime(0.0001, t + 4.6);
+      b.connect(gb); gb.connect(ac.destination); b.start(t + 3.2); b.stop(t + 4.7);
+    }
+    function fermer() { if (!g.isConnected) return; g.style.transition = 'opacity 0.6s'; g.style.opacity = 0; parent.setTimeout(() => g.remove(), 650); if (!coupe) jouer(); }
+    g.addEventListener('click', fermer);
+    parent.setTimeout(fermer, 12500);
+  };
+
+  // ================== AGENDA DES SÉANCES ==================
+  let reservations = [];
+  try { reservations = JSON.parse(parent.localStorage.getItem('cinemaniak-agenda') || '[]'); } catch (err) {}
+  const boutonAgenda = doc.createElement('button'); boutonAgenda.className = 'agenda';
+  barreSons.insertBefore(boutonAgenda, barreSons.firstChild);
+  const panneauAgenda = doc.createElement('div'); panneauAgenda.id = 'cm-agenda'; doc.body.appendChild(panneauAgenda);
+  function majAgenda() {
+    boutonAgenda.innerHTML = '📅 <b>' + reservations.length + '</b>';
+    panneauAgenda.innerHTML = '<h4>&gt; MES SÉANCES</h4>' + (reservations.length ? reservations.map((r, i) =>
+      `<div class="s"><div>${r.titre}<small>${r.jour} ${r.heure} · SALLE ${r.salle} · PLACE ${r.place}</small></div><div><button data-b="${i}">🎟</button> <button data-x="${i}">✕</button></div></div>`).join('')
+      : '<div class="vide">&gt; Aucune séance réservée pour l\'instant.</div>');
+  }
+  majAgenda();
+  boutonAgenda.addEventListener('click', () => { panneau.classList.remove('ouvert'); panneauAgenda.classList.toggle('ouvert'); });
+  boutonTrophees.addEventListener('click', () => panneauAgenda.classList.remove('ouvert'));
+  panneauAgenda.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.b !== undefined) parent.cinemaniakBillet(reservations[Number(b.dataset.b)]);
+    if (b.dataset.x !== undefined) { reservations.splice(Number(b.dataset.x), 1); sauverAgenda(); }
+  });
+  function sauverAgenda() { try { parent.localStorage.setItem('cinemaniak-agenda', JSON.stringify(reservations)); } catch (err) {} majAgenda(); }
+
+  // ================== PLAN DE SALLE ==================
+  parent.cinemaniakPlan = function (s, quandReserve) {
+    if (doc.getElementById('cm-plan')) return;
+    const rangs = 'ABCDEFGHJ', places = 14;
+    let graine = 0; for (const c of s.titre + s.jour + s.heure) graine = (graine * 31 + c.charCodeAt(0)) % 99991;
+    const hasardPlan = () => { graine = (graine * 9301 + 49297) % 233280; return graine / 233280; };
+    const fond = doc.createElement('div'); fond.id = 'cm-plan';
+    let lignes = '';
+    for (const r of rangs) {
+      lignes += `<div class="rang"><b>${r}</b>`;
+      for (let p = 1; p <= places; p++) {
+        if (p === 8) lignes += '<span class="allee"></span>';
+        lignes += `<span class="siege ${hasardPlan() < 0.38 ? 'pris' : ''}" data-place="${r}${p}"></span>`;
+      }
+      lignes += `<b>${r}</b></div>`;
+    }
+    fond.innerHTML = `<div class="boite"><h4>${s.titre.toUpperCase()}</h4><div class="sous">${s.jour} ${s.heure} · SALLE ${s.salle} · CHOISIS TA PLACE</div>
+      <div class="ecran-salle"></div><div class="ecran-txt">ÉCRAN</div>${lignes}
+      <div class="bas"><div class="legende">PLACE : <b class="choix">—</b></div><div><button class="annuler">✕ ANNULER</button> <button class="valider" disabled>▸ RÉSERVER</button></div></div></div>`;
+    doc.body.appendChild(fond);
+    let choix = null;
+    fond.addEventListener('click', (e) => {
+      const siege = e.target.closest('.siege');
+      if (siege && !siege.classList.contains('pris')) {
+        fond.querySelectorAll('.siege.choisi').forEach(x => x.classList.remove('choisi'));
+        siege.classList.add('choisi'); choix = siege.dataset.place;
+        fond.querySelector('.choix').textContent = choix; fond.querySelector('.valider').disabled = false; tic(1800, 0.03, 0.04);
+      }
+      if (e.target.closest('.annuler') || e.target === fond) fond.remove();
+      if (e.target.closest('.valider') && choix) {
+        const billet = Object.assign({}, s, { place: choix });
+        reservations.push(billet); sauverAgenda();
+        if (choix.startsWith('A')) succes('premierrang');
+        if (reservations.length >= 3) succes('agenda');
+        fond.remove(); tic(1046, 0.1, 0.06); parent.setTimeout(() => tic(1568, 0.2, 0.06), 110);
+        if (quandReserve) quandReserve(billet);
+      }
+    });
+  };
+
+
+  // ================== SOUS-TITRES DU CINÉ ==================
+  const PHRASES = {
+    'sec-tableau': ['Les portes ouvrent 15 minutes avant chaque séance.', 'Le pop-corn est meilleur pendant la bande-annonce.'],
+    'sec-affiche': ['Quinze films cette semaine. Un seul soir pour choisir.', 'Les meilleures places sont au milieu, rang F.'],
+    'sec-salle9': ['Votre vote décide du film de jeudi.', 'La Salle 9 ne ressemble à aucune autre.'],
+    'sec-oracle': ['Elle vous attendait.', 'Les cookies sont encore chauds.'],
+    'sec-recherche': ['Tapez un titre. La Matrice fera le reste.'],
+    'sec-recos': ['Ces films vous ressemblent.', 'La Matrice a analysé vos goûts.'],
+    'sec-matrice': ['Chaque point lumineux est un film.', 'Cliquez sur une étoile pour voyager.'],
+    'sec-duel': ['Deux films entrent. Un seul ressort.'],
+    'sec-jeu': ['Plus vite que le signal.'],
+    'sec-terminal': ['Tapez « aide » si vous êtes perdu.'],
+    'sec-machines': ['Derrière chaque film, des milliers de chiffres.'],
+    '': ['Merci d\'éteindre vos téléphones portables.', 'Le film va bientôt commencer.', 'Bienvenue au Cinémaniak.'],
+  };
+  const sousTitre = doc.createElement('div'); sousTitre.id = 'cm-soustitre'; doc.body.appendChild(sousTitre);
+  function sectionActive() {
+    let actif = '';
+    sections.forEach(([id]) => { const el = doc.getElementById(id); if (el && el.getBoundingClientRect().top < parent.innerHeight * 0.5) actif = id; });
+    return actif;
+  }
+  parent.setInterval(() => {
+    if (!parent.__introDebut || Date.now() - parent.__introDebut < 15000) return;
+    if (doc.querySelector('#cm-neo, #cm-construct, #cm-generique, #cm-plan, #cm-billet, #cm-demo')) return;
+    if (Math.random() > 0.45) return;
+    const liste = PHRASES[sectionActive()] || PHRASES[''];
+    const phrase = liste[Math.floor(Math.random() * liste.length)];
+    let n = 0; sousTitre.textContent = ''; sousTitre.classList.add('visible');
+    const ecr = parent.setInterval(() => { n++; sousTitre.textContent = phrase.slice(0, n); if (n >= phrase.length) parent.clearInterval(ecr); }, 35);
+    parent.setTimeout(() => sousTitre.classList.remove('visible'), 5200);
+  }, 20000);
+
+  // ================== MÉTÉO DE LA MATRICE ==================
+  // La pluie change selon l'heure : calme le matin, dense le soir, rare la nuit
+  function meteo() {
+    const h = new Date().getHours();
+    if (h < 6) return { nom: 'BRUINE NOCTURNE', densite: 0.3, vitesse: 0.5 };
+    if (h < 12) return { nom: 'MATINÉE CALME', densite: 0.55, vitesse: 0.75 };
+    if (h < 18) return { nom: 'AVERSES DE L\'APRÈS-MIDI', densite: 0.8, vitesse: 1 };
+    return { nom: 'ORAGE DU SOIR', densite: 1, vitesse: 1.25 };
+  }
+  parent.cinemaniakMeteo = meteo;
+  parent.setInterval(() => {
+    const m = meteo();
+    doc.querySelectorAll('.goutte').forEach((g, i) => { g.style.display = (i % 10) / 10 < m.densite ? '' : 'none'; });
+    const etiquette = doc.querySelector('.meteo-matrice');
+    if (etiquette) etiquette.textContent = '> météo de la Matrice : ' + m.nom.toLowerCase();
+  }, 2000);
+
+  // ================== VISITE GUIDÉE (MODE DÉMO) ==================
+  parent.cinemaniakDemo = function () {
+    if (doc.getElementById('cm-demo')) return;
+    const bandeau = doc.createElement('div'); bandeau.id = 'cm-demo'; doc.body.appendChild(bandeau);
+    let arret = false;
+    const stop = (e) => { if (e.key === 'Escape') arret = true; };
+    doc.addEventListener('keydown', stop);
+    const aller = (id) => { const el = doc.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    const cliquer = (sel) => { const b = doc.querySelector(sel); if (b) b.click(); };
+    const etapes = [
+      [0, '▶ VISITE GUIDÉE DU CINÉMANIAK', () => parent.scrollTo({ top: 0 })],
+      [2500, '1/9 · LE TABLEAU DES SÉANCES EN DIRECT', () => aller('sec-tableau')],
+      [6000, '2/9 · LES 15 FILMS DE LA SEMAINE', () => aller('sec-affiche')],
+      [9500, '3/9 · LA SALLE 9, CHOISIE PAR LE PUBLIC', () => aller('sec-salle9')],
+      [13000, '4/9 · L\'ORACLE RECOMMANDE UN FILM', () => { aller('sec-oracle'); parent.setTimeout(() => cliquer('.st-key-consulter_oracle button'), 1500); }],
+      [18000, '5/9 · LA PILULE BLEUE TIRE UN CLASSIQUE', () => { parent.scrollTo({ top: 0, behavior: 'smooth' }); parent.setTimeout(() => cliquer('.st-key-pilule_bleue button'), 1500); }],
+      [23500, '6/9 · LE DOSSIER DU FILM ET SES SÉANCES', () => aller('sec-recherche')],
+      [29000, '7/9 · LES FILMS COMPATIBLES', () => aller('sec-recos')],
+      [33000, '8/9 · LA CARTE DE LA MATRICE', () => aller('sec-matrice')],
+      [37500, '9/9 · ET QUELQUES SECRETS…', () => reveil()],
+      [46000, '■ FIN DE LA VISITE · BIENVENUE AU CINÉMANIAK', () => parent.scrollTo({ top: 0, behavior: 'smooth' })],
+    ];
+    etapes.forEach(([t, texte, action]) => parent.setTimeout(() => {
+      if (arret) return;
+      bandeau.textContent = texte; tic(1200, 0.05, 0.05); action();
+    }, t));
+    parent.setTimeout(() => { bandeau.remove(); doc.removeEventListener('keydown', stop); }, 50000);
+    (function surveiller() { if (arret) { bandeau.remove(); doc.removeEventListener('keydown', stop); } else if (bandeau.isConnected) parent.setTimeout(surveiller, 300); })();
+  };
+
   // ---- Glitch de transition (appelé par la fiche quand on change de film) ----
   parent.cinemaniakGlitch = function () {
     doc.body.classList.remove('cm-glitch');
@@ -126,11 +969,29 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
   let tape = '';
   function touche(e) {
     if (!e.key || e.key.length !== 1) return;
-    tape = (tape + e.key.toLowerCase()).slice(-3);
-    if (tape === 'neo') { tape = ''; reveil(); }
+    tape = (tape + e.key.toLowerCase()).slice(-12);
+    if (tape.endsWith('neo')) { tape = ''; reveil(); }
+    else if (tape.endsWith('construct')) { tape = ''; construct(); }
+    else if (tape.endsWith('dejavu')) { tape = ''; dejaVu(); }
+    else if (tape.endsWith('cuillere') || tape.endsWith('cuillère')) { tape = ''; cuillere(); }
+    else if (tape.endsWith('operateur')) {
+      tape = '';
+      const acces = doc.querySelector('.st-key-acces_operateur button');
+      if (acces) { acces.click(); parent.setTimeout(() => { const l = doc.querySelector('.st-key-login'); if (l) l.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 700); }
+    }
   }
   parent.cinemaniakTouche = touche;
   doc.addEventListener('keydown', touche);
+
+  // On bloque les raccourcis clavier de Streamlit (R = relancer, C = vider le cache)
+  // sinon taper « construct » ouvrirait une fenêtre de Streamlit
+  doc.addEventListener('keydown', (e) => {
+    const champ = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
+    if (!champ && !e.ctrlKey && !e.metaKey && ['r', 'c', 'R', 'C'].includes(e.key)) {
+      touche(e);
+      e.stopImmediatePropagation();
+    }
+  }, true);
 
 
   // ---- Sons de l'easter egg : coupure, grésillement, drone, reconnexion ----
@@ -208,6 +1069,7 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
 
   function reveil() {
     if (doc.getElementById('cm-neo')) return;
+    succes('neo');
     // On ferme la liste déroulante si elle est ouverte, pour qu'elle ne cache pas le message
     const actif = doc.activeElement;
     if (actif) {
@@ -215,7 +1077,7 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
       actif.blur();
     }
     doc.body.classList.add('cm-neo');
-    const sons = sonsNeo();
+    const sons = sonsCoupes ? null : sonsNeo();
     if (!coupe) { fondu(0.02); parent.setTimeout(() => { if (!coupe) jouer(); }, 7600); }
     const ecran = doc.createElement('div');
     ecran.id = 'cm-neo';
