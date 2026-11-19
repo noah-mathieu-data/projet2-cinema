@@ -1,0 +1,234 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@font-face { font-family: 'VT323'; src: url('/app/static/vt323.woff2') format('woff2'); }
+@font-face { font-family: 'Katakana Matrix'; src: url('/app/static/katakana.woff2') format('woff2'); }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; font-family: 'VT323', 'Katakana Matrix', monospace; color: #C8FFD4; }
+
+.dossier { position: relative; height: 100%; border: 1px solid rgba(0, 255, 65, 0.55); background: #000; overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 255, 65, 0.25), inset 0 0 60px rgba(0, 255, 65, 0.08); animation: ouvre 0.5s ease-out; }
+@keyframes ouvre { from { clip-path: inset(50% 0 50% 0); } to { clip-path: inset(0 0 0 0); } }
+
+.fond { position: absolute; inset: 0; background-size: cover; background-position: center 25%;
+  filter: grayscale(1) brightness(0.32) sepia(1) hue-rotate(70deg) saturate(3); opacity: 0.55; transform: scale(1.05); }
+.fond::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.85) 100%); }
+.lignes { position: absolute; inset: 0; pointer-events: none; z-index: 6;
+  background: repeating-linear-gradient(to bottom, rgba(0, 255, 65, 0.04) 0 1px, transparent 1px 3px); }
+
+.coin { position: absolute; width: 22px; height: 22px; border-color: #00FF41; border-style: solid; z-index: 7; filter: drop-shadow(0 0 4px #00FF41); }
+.c1 { top: 8px; left: 8px; border-width: 2px 0 0 2px; } .c2 { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+.c3 { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; } .c4 { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+.entete { position: relative; z-index: 5; display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 40px; border-bottom: 1px solid rgba(0, 255, 65, 0.3); font-size: 19px; letter-spacing: 0.25em; color: #7CFC9A; }
+.entete .rouge { color: #ff3b3b; text-shadow: 0 0 8px #ff3b3b; animation: clignote 1.1s steps(1) infinite; }
+@keyframes clignote { 50% { opacity: 0.2; } }
+
+.corps { position: relative; z-index: 5; display: flex; gap: 44px; padding: 26px 40px; height: calc(100% - 52px); }
+
+/* ---- Affiche hologramme ---- */
+.cadre { position: relative; flex: 0 0 290px; height: 435px; border: 1px solid rgba(0, 255, 65, 0.6); background: #010a03;
+  box-shadow: 0 0 25px rgba(0, 255, 65, 0.35); overflow: hidden; }
+.cadre .etiquette { position: absolute; left: 0; right: 0; bottom: -30px; text-align: center; font-size: 15px; letter-spacing: 0.3em; color: #7CFC9A; }
+.affiche { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.affiche.verte { filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(4) brightness(0.8) contrast(1.2); }
+.affiche.couleur { clip-path: inset(0 0 100% 0); animation: revele 1.6s cubic-bezier(0.6, 0, 0.3, 1) 0.5s forwards; }
+@keyframes revele { to { clip-path: inset(0 0 0 0); } }
+.scan { position: absolute; left: 0; right: 0; height: 3px; top: 0; background: #E8FFE8; z-index: 3;
+  box-shadow: 0 0 18px 6px rgba(0, 255, 65, 0.8); animation: descend 1.6s cubic-bezier(0.6, 0, 0.3, 1) 0.5s forwards; opacity: 0; }
+@keyframes descend { 0% { top: 0; opacity: 1; } 95% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+.holo { position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: screen;
+  background: linear-gradient(115deg, transparent 30%, rgba(0, 255, 65, 0.22) 45%, rgba(232, 255, 232, 0.3) 50%, rgba(0, 255, 65, 0.22) 55%, transparent 70%);
+  background-size: 300% 100%; animation: reflet 4.5s ease-in-out 2.4s infinite; background-position: 150% 0; }
+@keyframes reflet { 0% { background-position: 150% 0; } 45%, 100% { background-position: -50% 0; } }
+.cadre:hover .affiche.couleur { animation: revele 0s forwards, saute 0.25s steps(2) 2; }
+@keyframes saute { 50% { transform: translate(4px, -2px); filter: hue-rotate(90deg); } }
+
+.perdu { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; z-index: 2; }
+.perdu canvas { position: absolute; inset: 0; opacity: 0.5; }
+.perdu b { position: relative; font-weight: 400; font-size: 34px; color: #ff3b3b; text-shadow: 2px 0 #00e5ff, -2px 0 #ff0040, 0 0 12px #ff3b3b; animation: glitch 0.4s steps(2) infinite; letter-spacing: 0.15em; }
+.perdu span { position: relative; font-size: 17px; letter-spacing: 0.25em; color: #7CFC9A; background: #000; padding: 2px 8px; }
+@keyframes glitch { 50% { transform: translate(2px, -1px) skewX(-6deg); text-shadow: -2px 0 #00e5ff, 2px 0 #ff0040, 0 0 12px #ff3b3b; } }
+
+/* ---- Informations ---- */
+.infos { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.titre { margin: 0; font-weight: 400; font-size: 58px; line-height: 1; color: #E8FFE8; letter-spacing: 0.04em;
+  text-shadow: 0 0 10px #00FF41, 0 0 35px rgba(0, 255, 65, 0.6); }
+.accroche { margin-top: 8px; color: #7CFC9A; font-size: 22px; font-style: italic; opacity: 0; animation: apparait 0.8s 1.2s forwards; min-height: 26px; }
+.ligne { margin-top: 14px; font-size: 22px; letter-spacing: 0.2em; color: #00FF41; opacity: 0; animation: apparait 0.5s 0.7s forwards; }
+.badges { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.badge { border: 1px solid #00FF41; padding: 2px 12px; font-size: 18px; letter-spacing: 0.15em; text-transform: uppercase; color: #00FF41;
+  background: rgba(0, 255, 65, 0.08); opacity: 0; animation: apparait 0.3s forwards; }
+@keyframes apparait { to { opacity: 1; } }
+
+.jauges { display: flex; gap: 36px; margin-top: 22px; }
+.jauge { flex: 1; }
+.jauge .nom { font-size: 17px; letter-spacing: 0.25em; color: #7CFC9A; }
+.jauge .valeur { font-size: 46px; color: #00FF41; text-shadow: 0 0 10px #00FF41; line-height: 1.05; }
+.jauge .valeur small { font-size: 22px; color: #7CFC9A; }
+.barre { display: flex; gap: 3px; margin-top: 4px; }
+.barre i { flex: 1; height: 12px; background: rgba(0, 255, 65, 0.12); border: 1px solid rgba(0, 255, 65, 0.25); }
+.barre i.plein { background: #00FF41; box-shadow: 0 0 8px #00FF41; }
+
+.resume-titre { margin-top: 24px; font-size: 17px; letter-spacing: 0.3em; color: #7CFC9A; border-top: 1px dashed rgba(0, 255, 65, 0.3); padding-top: 12px; }
+.resume { margin-top: 8px; font-size: 22px; line-height: 1.25; color: #C8FFD4; min-height: 3.75em; }
+.curseur { display: inline-block; width: 0.55em; height: 1em; background: #00FF41; vertical-align: -0.12em; margin-left: 2px; box-shadow: 0 0 8px #00FF41; animation: clignote 0.8s steps(1) infinite; }
+.seances { margin-top: auto; padding-top: 12px; border-top: 1px dashed rgba(0, 255, 65, 0.3); }
+.seances-titre { font-size: 17px; letter-spacing: 0.3em; color: #7CFC9A; margin-bottom: 8px; }
+.jours { display: flex; gap: 10px; flex-wrap: wrap; }
+.jour { border: 1px solid rgba(0, 255, 65, 0.35); padding: 4px 10px 6px; background: rgba(0, 20, 5, 0.6); opacity: 0; animation: apparait 0.3s forwards; }
+.jour b { display: block; font-weight: 400; font-size: 16px; letter-spacing: 0.2em; color: #7CFC9A; }
+.heure { display: inline-block; margin: 3px 4px 0 0; padding: 1px 8px; font-size: 20px; color: #00FF41; border: 1px solid #00FF41; cursor: pointer; transition: all 0.15s; }
+.heure:hover { background: #00FF41; color: #000; box-shadow: 0 0 14px #00FF41; }
+.heure.prise { background: #00FF41; color: #000; }
+.salle { color: #E8FFE8; text-shadow: 0 0 8px #00FF41; }
+.salle.neuf { color: #ffcc33; text-shadow: 0 0 8px #ff9900; }
+.salle.hors { color: #ff6b6b; text-shadow: 0 0 8px #ff3b3b; }
+.statut { font-size: 20px; line-height: 1.25; color: #9fdcaf; max-width: 760px; opacity: 0; animation: apparait 0.4s 1.6s forwards; }
+.ticket { margin-top: 8px; font-size: 20px; color: #E8FFE8; min-height: 24px; text-shadow: 0 0 8px #00FF41; }
+html, body { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><path d='M2 2 L2 18 L6.5 13.5 L10 20 L12.5 19 L9 12.5 L15 12.5 Z' fill='%2300FF41' stroke='black' stroke-width='1.2'/></svg>") 2 2, auto; }
+</style></head><body>
+<div class="dossier">
+  <div class="fond" id="fond"></div>
+  <div class="lignes"></div>
+  <div class="coin c1"></div><div class="coin c2"></div><div class="coin c3"></div><div class="coin c4"></div>
+  <div class="entete">
+    <span>▣ DOSSIER CINÉMANIAK // CLASSÉ CULTE</span>
+    <span id="ref"></span>
+    <span class="rouge">● ACCÈS AUTORISÉ</span>
+  </div>
+  <div class="corps">
+    <div class="cadre" id="cadre"></div>
+    <div class="infos">
+      <h1 class="titre" id="titre"></h1>
+      <div class="accroche" id="accroche"></div>
+      <div class="ligne" id="ligne"></div>
+      <div class="badges" id="badges"></div>
+      <div class="jauges">
+        <div class="jauge"><div class="nom">INDICE DE CULTE</div><div class="valeur" id="note">0.0<small> / 10</small></div><div class="barre" id="barre"></div></div>
+        <div class="jauge"><div class="nom">SPECTATEURS IMDb</div><div class="valeur" id="votes">0</div><div class="barre" id="barre2"></div></div>
+      </div>
+      <div class="resume-titre">&gt; RÉSUMÉ DU DOSSIER</div>
+      <div class="resume"><span id="resume"></span><span class="curseur"></span></div>
+      <div class="seances"><div class="seances-titre">&gt; SÉANCES AU CINÉMANIAK CETTE SEMAINE</div><div class="jours" id="jours"></div><div class="ticket" id="ticket"></div></div>
+    </div>
+  </div>
+</div>
+<script>
+const FILM = DONNEES_FILM;
+
+// Quand on change de film : glitch de transition puis on remonte en douceur jusqu'à la fiche
+try {
+  if (window.parent.__ficheVue) {
+    if (window.parent.cinemaniakGlitch) window.parent.cinemaniakGlitch();
+    window.frameElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  window.parent.__ficheVue = true;
+} catch (e) {}
+document.addEventListener('keydown', (e) => { try { window.parent.cinemaniakTouche(e); } catch (err) {} });
+const signes = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789';
+const hasard = () => signes[Math.floor(Math.random() * signes.length)];
+const $ = id => document.getElementById(id);
+
+// Fond flouté du film
+if (FILM.fond) $('fond').style.backgroundImage = `url('${FILM.fond}')`;
+$('ref').textContent = 'RÉF. ' + FILM.tconst.toUpperCase();
+
+// Affiche : version verte + version couleur révélée par le scanner
+const cadre = $('cadre');
+if (FILM.affiche) {
+  cadre.insertAdjacentHTML('afterbegin',
+    `<img class="affiche verte" src="${FILM.affiche}"><img class="affiche couleur" src="${FILM.affiche}"><div class="scan"></div><div class="holo"></div>`);
+} else {
+  cadre.insertAdjacentHTML('afterbegin', '<div class="perdu"><canvas id="mini"></canvas><b>SIGNAL PERDU</b><span>FICHIER CORROMPU</span></div>');
+  const c = $('mini'), x = c.getContext('2d');
+  c.width = 290; c.height = 435;
+  const col = Array(20).fill(0).map(() => Math.random() * -30);
+  setInterval(() => {
+    x.fillStyle = 'rgba(0,0,0,0.12)'; x.fillRect(0, 0, 290, 435);
+    x.font = '15px "Katakana Matrix"'; x.fillStyle = '#00FF41';
+    col.forEach((y, i) => { x.fillText(hasard(), i * 15, y * 15); col[i] = y * 15 > 435 && Math.random() > 0.95 ? 0 : y + 1; });
+  }, 60);
+}
+
+// Titre qui se décode
+const mot = FILM.titre;
+$('titre').style.fontSize = mot.length > 34 ? '38px' : mot.length > 22 ? '46px' : '58px';
+let revele = 0;
+const decode = setInterval(() => {
+  $('titre').textContent = mot.split('').map((l, i) => (i < revele || l === ' ') ? l : hasard()).join('');
+  if (revele >= mot.length) clearInterval(decode);
+  revele += Math.max(0.35, mot.length / 40);
+}, 40);
+
+if (FILM.accroche) $('accroche').textContent = '« ' + FILM.accroche + ' »';
+$('ligne').textContent = [FILM.annee, FILM.duree + ' MIN', FILM.langue.toUpperCase()].join('  ·  ');
+FILM.genres.forEach((g, i) => {
+  $('badges').insertAdjacentHTML('beforeend', `<span class="badge" style="animation-delay:${0.9 + i * 0.15}s">${g}</span>`);
+});
+
+// Jauges qui se remplissent
+function barre(id, part) {
+  const b = $(id);
+  for (let i = 0; i < 20; i++) b.insertAdjacentHTML('beforeend', '<i></i>');
+  const cases = b.querySelectorAll('i'), total = Math.round(part * 20);
+  cases.forEach((c, i) => { if (i < total) setTimeout(() => c.classList.add('plein'), 900 + i * 55); });
+}
+barre('barre', FILM.note / 10);
+barre('barre2', Math.min(1, Math.log10(FILM.votes) / Math.log10(3000000)));
+const debut = performance.now();
+function compte(t) {
+  const p = Math.min(1, (t - debut - 900) / 1300);
+  if (p > 0) {
+    const e = 1 - Math.pow(1 - p, 3);
+    $('note').innerHTML = (FILM.note * e).toFixed(1) + '<small> / 10</small>';
+    $('votes').textContent = Math.round(FILM.votes * e).toLocaleString('fr-FR');
+  }
+  if (p < 1) requestAnimationFrame(compte);
+}
+requestAnimationFrame(compte);
+
+// Résumé tapé comme sur un terminal
+const texte = FILM.resume || 'Aucune archive disponible pour ce dossier.';
+let n = 0;
+setTimeout(function taper() {
+  n += 2;
+  $('resume').textContent = texte.slice(0, n);
+  if (n < texte.length) setTimeout(taper, 14);
+}, 1500);
+
+// Séances : seulement si le film est à l'affiche cette semaine
+let place = 0;
+const statut = FILM.statut || 'hors';
+if (statut === 'affiche') {
+  document.querySelector('.seances-titre').innerHTML = '&gt; À L\'AFFICHE · <span class="salle">SALLE ' + FILM.salle + '</span> · CETTE SEMAINE';
+  FILM.jours.forEach(([nom, heures], j) => {
+    const bloc = document.createElement('div');
+    bloc.className = 'jour'; bloc.style.animationDelay = (1.6 + j * 0.12) + 's';
+    bloc.innerHTML = '<b>' + nom + '</b>' + heures.map(hr => '<span class="heure">' + hr + '</span>').join('');
+    $('jours').appendChild(bloc);
+    bloc.querySelectorAll('.heure').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.heure.prise').forEach(x => x.classList.remove('prise'));
+      btn.classList.add('prise');
+      const rang = 'ABCDEFGHJ'[Math.floor(Math.random() * 9)] + (1 + Math.floor(Math.random() * 14));
+      const message = '> PLACE RÉSERVÉE · ' + nom + ' ' + btn.textContent + ' · SALLE ' + FILM.salle + ' · RANG ' + rang + ' ✔';
+      let n = 0; clearInterval(place);
+      place = setInterval(() => { n += 2; $('ticket').textContent = message.slice(0, n); if (n >= message.length) clearInterval(place); }, 18);
+    }));
+  });
+} else if (statut === 'candidat') {
+  document.querySelector('.seances-titre').innerHTML = '&gt; STATUT : <span class="salle neuf">EN LICE POUR LA SALLE 9</span>';
+  $('jours').innerHTML = '<div class="statut">Ce film fait partie des candidats au vote de la semaine. S\'il gagne, il sera projeté jeudi à 21:00 dans la Salle 9, décorée pour l\'occasion. Vote plus haut dans la section SALLE 9.</div>';
+} else {
+  document.querySelector('.seances-titre').innerHTML = '&gt; STATUT : <span class="salle hors">HORS PROGRAMMATION</span>';
+  $('jours').innerHTML = '<div class="statut">Ce film n\'est pas à l\'affiche cette semaine. La programmation change chaque lundi : retrouve les 15 films de la semaine et le vote de la Salle 9 plus haut.</div>';
+}
+
+// La souris dans ce cadre laisse aussi sa traînée sur la page
+document.addEventListener('mousemove', (e) => {
+  try {
+    const r = window.frameElement.getBoundingClientRect();
+    window.parent.cinemaniakTrace(r.left + e.clientX, r.top + e.clientY);
+  } catch (err) {}
+});
+</script></body></html>

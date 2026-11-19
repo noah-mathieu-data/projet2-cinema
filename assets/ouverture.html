@@ -1,19 +1,21 @@
-<!DOCTYPE html><html><head><style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-html, body { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: 'Share Tech Mono', monospace; }
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@font-face { font-family: 'VT323'; src: url('/app/static/vt323.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'Katakana Matrix'; src: url('/app/static/katakana.woff2') format('woff2'); font-display: block; }
+html, body { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: 'VT323', monospace; }
 canvas { position: absolute; inset: 0; }
 .voile { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.92) 70%); }
 .balayage { position: absolute; inset: 0; pointer-events: none; animation: scintille 5s infinite;
     background: repeating-linear-gradient(to bottom, rgba(0,255,65,0.06) 0 1px, transparent 1px 3px); }
 @keyframes scintille { 0%, 100% { opacity: 0.9; } 48% { opacity: 0.55; } 50% { opacity: 1; } }
 .centre { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-h1 { margin: 0; font-size: 86px; font-weight: 400; letter-spacing: 0.35em; color: #00FF41;
+h1 { margin: 0; font-size: 110px; font-family: 'VT323', 'Katakana Matrix', 'VT323', monospace; font-weight: 400; letter-spacing: 0.35em; color: #00FF41;
     text-shadow: 0 0 12px #00FF41, 0 0 45px #00FF41, 0 0 90px rgba(0,255,65,0.5); }
-.slogan { margin-top: 10px; color: #E8FFE8; letter-spacing: 0.4em; font-size: 15px; opacity: 0; animation: apparait 1s 7.5s forwards; }
-.demarrage { margin-top: 26px; color: #7CFC9A; font-size: 15px; min-height: 75px; }
+.slogan { margin-top: 10px; color: #E8FFE8; letter-spacing: 0.4em; font-size: 22px; opacity: 0; }
+.demarrage { margin-top: 26px; color: #7CFC9A; font-size: 21px; min-height: 75px; }
 .demarrage div { opacity: 0; animation: apparait 0.3s forwards; }
 .ok { color: #00FF41; text-shadow: 0 0 8px #00FF41; }
 @keyframes apparait { to { opacity: 1; } }
+html, body { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><path d='M2 2 L2 18 L6.5 13.5 L10 20 L12.5 19 L9 12.5 L15 12.5 Z' fill='%2300FF41' stroke='black' stroke-width='1.2'/></svg>") 2 2, auto; }
 </style></head><body>
 <canvas id="pluie"></canvas><div class="voile"></div><div class="balayage"></div>
 <div class="centre">
@@ -26,40 +28,100 @@ const toile = document.getElementById('pluie'), ctx = toile.getContext('2d');
 function redimensionner() { toile.width = innerWidth; toile.height = innerHeight; }
 redimensionner(); addEventListener('resize', redimensionner);
 const signes = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789';
-const taille = 18;
-const gouttes = Array(Math.floor(innerWidth / taille)).fill(0).map(() => Math.random() * -60);
+const taille = 20;
+const colonnes = Math.floor(innerWidth / taille) + 1;
+const gouttes = Array(colonnes).fill(0).map(() => Math.random() * -60);
+const vitesses = Array(colonnes).fill(0).map(() => 0.5 + Math.random() * 0.7);
+const avant = Array(colonnes).fill('');
+function signe() { return signes[Math.floor(Math.random() * signes.length)]; }
+function ecrire(s, x, y, couleur, lueur) {
+  ctx.save();
+  ctx.translate(x + taille, y);
+  ctx.scale(-1, 1);
+  ctx.fillStyle = couleur;
+  ctx.shadowColor = couleur;
+  ctx.shadowBlur = lueur;
+  ctx.fillText(s, 0, 0);
+  ctx.restore();
+}
+const derniere = Array(colonnes).fill(-1);
 function tomber() {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.07)'; ctx.fillRect(0, 0, toile.width, toile.height);
-  ctx.font = taille + 'px Share Tech Mono';
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+  ctx.fillRect(0, 0, toile.width, toile.height);
+  ctx.font = '500 ' + taille + 'px "Katakana Matrix", "VT323", monospace';
   gouttes.forEach((y, i) => {
-    const s = signes[Math.floor(Math.random() * signes.length)];
-    ctx.fillStyle = Math.random() > 0.96 ? '#E8FFE8' : '#00FF41';
-    ctx.fillText(s, i * taille, y * taille);
-    gouttes[i] = (y * taille > toile.height && Math.random() > 0.975) ? 0 : y + 1;
+    const ligne = Math.floor(y);
+    const x = i * taille;
+    if (ligne !== derniere[i]) {
+      if (avant[i] && derniere[i] >= 0) {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(x, derniere[i] * taille - taille + 3, taille, taille + 2);
+        ecrire(avant[i], x, derniere[i] * taille, '#00FF41', 6);
+      }
+      const s = signe();
+      ecrire(s, x, ligne * taille, '#F2FFF2', 16);
+      avant[i] = s;
+      derniere[i] = ligne;
+      if (ligne > 3 && Math.random() > 0.9) {
+        const r = Math.floor(Math.random() * ligne);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(x, r * taille - taille + 3, taille, taille + 2);
+        ecrire(signe(), x, r * taille, '#00C832', 4);
+      }
+    }
+    if (y * taille > toile.height && Math.random() > 0.975) { gouttes[i] = 0; derniere[i] = -1; avant[i] = ''; }
+    else gouttes[i] = y + vitesses[i];
   });
 }
-setInterval(tomber, 45);
+document.fonts.load('500 20px "Katakana Matrix", "VT323"').finally(() => setInterval(tomber, 45));
 
 const DEPART = 6500;   
 const mot = 'CINÉMANIAK', titre = document.getElementById('titre');
 titre.textContent = mot.split('').map(() => signes[Math.floor(Math.random() * signes.length)]).join('');
 let revele = 0;
-setTimeout(() => {
-  const decrypte = setInterval(() => {
-    titre.textContent = mot.split('').map((l, i) => i < revele ? l : signes[Math.floor(Math.random() * signes.length)]).join('');
-    if (revele >= mot.length) clearInterval(decrypte);
-    revele += 0.25;
-  }, 60);
-}, DEPART);
+
+// On attend que l'intro soit lancée (clic sur SE CONNECTER) avant de décoder le titre
+function quandIntro(f) {
+  const debutAttente = Date.now();
+  (function verifier() {
+    let debut = null, intro = true;
+    try { debut = window.parent.__introDebut; intro = window.parent.__introCinemaniak; } catch (e) {}
+    if (debut) f(Math.max(0, debut + DEPART - Date.now()));
+    else if (!intro && Date.now() - debutAttente > 4000) f(0);
+    else setTimeout(verifier, 100);
+  })();
+}
 
 const lignes = [
   ['> connexion au serveur cinemaniak.angers', 'OK'],
   ['> chargement du catalogue : NB_FILMS films', 'OK'],
   ['> analyse des goûts du spectateur', 'PRÊT'],
 ];
-lignes.forEach((l, i) => setTimeout(() => {
-  const d = document.createElement('div');
-  d.innerHTML = l[0] + ' ........ <span class="ok">[' + l[1] + ']</span>';
-  document.getElementById('demarrage').appendChild(d);
-}, DEPART + 1200 + i * 650));
+
+quandIntro((attente) => {
+  setTimeout(() => {
+    const decrypte = setInterval(() => {
+      titre.textContent = mot.split('').map((l, i) => i < revele ? l : signes[Math.floor(Math.random() * signes.length)]).join('');
+      if (revele >= mot.length) clearInterval(decrypte);
+      revele += 0.25;
+    }, 60);
+  }, attente);
+  document.querySelector('.slogan').style.animation = `apparait 1s ${attente + 1000}ms forwards`;
+  lignes.forEach((l, i) => setTimeout(() => {
+    const d = document.createElement('div');
+    d.innerHTML = l[0] + ' ........ <span class="ok">[' + l[1] + ']</span>';
+    document.getElementById('demarrage').appendChild(d);
+  }, attente + 1200 + i * 650));
+});
+
+// Les touches tapées ici comptent aussi pour l'easter egg
+document.addEventListener('keydown', (e) => { try { window.parent.cinemaniakTouche(e); } catch (err) {} });
+
+// La souris dans ce cadre laisse aussi sa traînée sur la page
+document.addEventListener('mousemove', (e) => {
+  try {
+    const r = window.frameElement.getBoundingClientRect();
+    window.parent.cinemaniakTrace(r.left + e.clientX, r.top + e.clientY);
+  } catch (err) {}
+});
 </script></body></html>

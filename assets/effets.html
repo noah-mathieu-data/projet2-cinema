@@ -1,0 +1,261 @@
+<script>
+// Effets globaux du site : traînée de la souris, easter egg « neo », glitch de transition
+(function () {
+  const parent = window.parent;
+  const doc = parent.document;
+  if (parent.__effetsCinemaniak) return;
+  parent.__effetsCinemaniak = true;
+
+  const signes = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ01';
+  const hasard = () => signes[Math.floor(Math.random() * signes.length)];
+
+  const css = `
+#cm-son { position: fixed; top: 14px; right: 18px; z-index: 999993; font-family: 'VT323', monospace; font-size: 20px; letter-spacing: 0.2em;
+  color: #00FF41; background: rgba(0, 10, 3, 0.85); border: 1px solid #00FF41; padding: 4px 14px; box-shadow: 0 0 14px rgba(0, 255, 65, 0.45); transition: all 0.2s; }
+#cm-son b { font-weight: 400; color: #E8FFE8; text-shadow: 0 0 8px #00FF41; }
+#cm-son:hover { background: #00FF41; color: #000; }
+#cm-son:hover b { color: #000; text-shadow: none; }
+#cm-son.off { color: #4f8a5c; border-color: #2a6b3a; box-shadow: none; }
+#cm-son.off b { color: #ff3b3b; text-shadow: 0 0 8px #ff3b3b; }
+
+.cm-trace { position: fixed; z-index: 999990; pointer-events: none; font-family: 'Katakana Matrix', 'VT323', monospace;
+  font-size: 15px; color: #00FF41; text-shadow: 0 0 8px #00FF41; transform: translate(-50%, -50%) scaleX(-1);
+  animation: cm-trace 0.9s ease-out forwards; }
+@keyframes cm-trace { 0% { opacity: 0.95; } 100% { opacity: 0; transform: translate(-50%, 10px) scaleX(-1); } }
+
+body.cm-glitch .stApp { animation: cm-ecran-glitch 0.42s steps(1) 1 forwards; }
+@keyframes cm-ecran-glitch {
+  0% { transform: translate(0, 0); filter: none; }
+  15% { transform: translate(-8px, 2px); filter: hue-rotate(90deg) saturate(2); clip-path: inset(10% 0 55% 0); }
+  30% { transform: translate(6px, -3px); filter: invert(0.15); clip-path: inset(60% 0 8% 0); }
+  45% { transform: translate(-3px, 0); filter: hue-rotate(-60deg); clip-path: inset(30% 0 35% 0); }
+  60% { transform: translate(4px, 1px); filter: brightness(1.6); clip-path: none; }
+  80% { transform: translate(0, 0); filter: none; }
+}
+body.cm-glitch::after { content: ""; position: fixed; inset: 0; z-index: 999991; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0, 255, 65, 0.18) 0 2px, transparent 2px 7px);
+  animation: cm-bandes 0.42s steps(3) 1 forwards; }
+@keyframes cm-bandes { 0% { transform: translateY(0); } 100% { transform: translateY(40px); opacity: 0; } }
+
+#cm-neo { position: fixed; inset: 0; z-index: 2147483000; background: rgba(0, 0, 0, 0.88); display: flex; align-items: center; justify-content: center;
+  animation: cm-neo-in 0.4s ease-out; }
+#cm-neo canvas { position: absolute; inset: 0; }
+#cm-neo .msg { position: relative; font-family: 'VT323', monospace; color: #ff3b3b; font-size: min(7vw, 84px); letter-spacing: 0.08em;
+  text-shadow: 0 0 14px #ff0030, 0 0 45px rgba(255, 0, 48, 0.6); text-align: center; line-height: 1.3; }
+#cm-neo .msg small { display: block; font-size: 0.4em; color: #ffb3b3; letter-spacing: 0.3em; }
+#cm-neo.fin { animation: cm-neo-out 0.8s ease forwards; }
+@keyframes cm-neo-in { from { opacity: 0; } }
+@keyframes cm-neo-out { to { opacity: 0; } }
+body.cm-neo [data-baseweb="popover"] { display: none !important; }
+body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !important; }
+`;
+  const style = doc.createElement('style');
+  style.textContent = css;
+  doc.head.appendChild(style);
+
+  // ---- Traînée de katakanas derrière la souris ----
+  let dernier = 0, dx = 0, dy = 0;
+  function tracer(x, y) {
+    const t = performance.now();
+    if (t - dernier < 35 || Math.hypot(x - dx, y - dy) < 14) return;
+    dernier = t; dx = x; dy = y;
+    const trace = doc.createElement('span');
+    trace.className = 'cm-trace';
+    trace.textContent = hasard();
+    trace.style.left = x + 'px';
+    trace.style.top = y + 'px';
+    doc.body.appendChild(trace);
+    parent.setTimeout(() => trace.remove(), 950);
+  }
+  // Les cadres (accueil, fiche) envoient aussi la position de la souris
+  parent.cinemaniakTrace = tracer;
+  doc.addEventListener('mousemove', (e) => tracer(e.clientX, e.clientY));
+
+
+  // ---- Musique de fond avec bouton pour couper le son ----
+  const audio = new parent.Audio(parent.location.origin + '/app/static/musique.mp3');
+  audio.loop = true;
+  audio.volume = 0;
+  let coupe = false;
+  try { coupe = parent.localStorage.getItem('cinemaniak-son') === 'off'; } catch (err) {}
+
+  const bouton = doc.createElement('button');
+  bouton.id = 'cm-son';
+  bouton.style.display = 'none';
+  doc.body.appendChild(bouton);
+  function afficher() { bouton.innerHTML = coupe ? '♪ SON <b>OFF</b>' : '♪ SON <b>ON</b>'; bouton.classList.toggle('off', coupe); }
+  afficher();
+
+  function fondu(cible) {
+    const pas = parent.setInterval(() => {
+      const v = audio.volume + (cible > audio.volume ? 0.02 : -0.04);
+      if ((cible > audio.volume && v >= cible) || (cible <= audio.volume && v <= cible)) {
+        audio.volume = Math.max(0, Math.min(1, cible)); parent.clearInterval(pas);
+        if (cible === 0) audio.pause();
+      } else audio.volume = Math.max(0, Math.min(1, v));
+    }, 60);
+  }
+  function jouer() { audio.play().then(() => fondu(0.15)).catch(() => {}); }
+
+  bouton.addEventListener('click', () => {
+    coupe = !coupe;
+    try { parent.localStorage.setItem('cinemaniak-son', coupe ? 'off' : 'on'); } catch (err) {}
+    afficher();
+    if (coupe) fondu(0); else jouer();
+  });
+
+  // Le bouton n'apparaît que si le fichier musique.mp3 existe dans static
+  audio.addEventListener('canplay', () => { bouton.style.display = 'block'; }, { once: true });
+
+  // La musique démarre à la fin de l'intro (après le clic sur SE CONNECTER)
+  (function attendre() {
+    const debut = parent.__introDebut;
+    if (debut) parent.setTimeout(() => { if (!coupe) jouer(); }, Math.max(0, debut + 6000 - Date.now()));
+    else parent.setTimeout(attendre, 200);
+  })();
+
+  // ---- Glitch de transition (appelé par la fiche quand on change de film) ----
+  parent.cinemaniakGlitch = function () {
+    doc.body.classList.remove('cm-glitch');
+    void doc.body.offsetWidth;
+    doc.body.classList.add('cm-glitch');
+    parent.setTimeout(() => doc.body.classList.remove('cm-glitch'), 450);
+  };
+
+  // ---- Easter egg : taper « neo » ----
+  let tape = '';
+  function touche(e) {
+    if (!e.key || e.key.length !== 1) return;
+    tape = (tape + e.key.toLowerCase()).slice(-3);
+    if (tape === 'neo') { tape = ''; reveil(); }
+  }
+  parent.cinemaniakTouche = touche;
+  doc.addEventListener('keydown', touche);
+
+
+  // ---- Sons de l'easter egg : coupure, grésillement, drone, reconnexion ----
+  function sonsNeo() {
+    const AC = parent.AudioContext || parent.webkitAudioContext;
+    if (!AC) return null;
+    const ac = new AC();
+    const t0 = ac.currentTime + 0.03;
+    const sortie = ac.createGain(); sortie.gain.value = 0.6; sortie.connect(ac.destination);
+    const bruit = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    const d = bruit.getChannelData(0);
+    for (let n = 0; n < d.length; n++) d[n] = Math.random() * 2 - 1;
+
+    function enveloppe(g, t, max, attaque, duree) {
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(max, t + attaque);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + duree);
+    }
+    function souffle(t, duree, type, freq, max) {
+      const s = ac.createBufferSource(); s.buffer = bruit;
+      const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq;
+      const g = ac.createGain(); enveloppe(g, t, max, 0.004, duree);
+      s.connect(f); f.connect(g); g.connect(sortie);
+      s.start(t, Math.random() * 1.5, duree + 0.05);
+    }
+    function balayage(t, de, a, duree, max) {
+      const o = ac.createOscillator(); o.type = 'sawtooth';
+      o.frequency.setValueAtTime(de, t); o.frequency.exponentialRampToValueAtTime(a, t + duree);
+      const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 2500;
+      const g = ac.createGain(); enveloppe(g, t, max, 0.01, duree);
+      o.connect(f); f.connect(g); g.connect(sortie); o.start(t); o.stop(t + duree + 0.05);
+    }
+
+    // Coupure brutale du signal
+    balayage(t0, 1400, 35, 0.7, 0.35);
+    souffle(t0, 0.35, 'highpass', 1500, 0.6);
+
+    // Grésillement : des craquements au hasard pendant toute la scène
+    let t = t0 + 0.3;
+    while (t < t0 + 6.8) {
+      const fort = Math.random() > 0.85;
+      souffle(t, fort ? 0.09 : 0.02 + Math.random() * 0.03, 'bandpass', 1800 + Math.random() * 4000, fort ? 0.45 : 0.08 + Math.random() * 0.15);
+      t += 0.02 + Math.random() * 0.09;
+    }
+    // Fond de parasites continu
+    const fond = ac.createBufferSource(); fond.buffer = bruit; fond.loop = true;
+    const ff = ac.createBiquadFilter(); ff.type = 'bandpass'; ff.frequency.value = 5000; ff.Q.value = 0.7;
+    const gf = ac.createGain();
+    gf.gain.setValueAtTime(0.0001, t0); gf.gain.exponentialRampToValueAtTime(0.05, t0 + 0.6);
+    gf.gain.setValueAtTime(0.05, t0 + 6.4); gf.gain.exponentialRampToValueAtTime(0.0001, t0 + 7.2);
+    fond.connect(ff); ff.connect(gf); gf.connect(sortie); fond.start(t0); fond.stop(t0 + 7.3);
+
+    // Drone grave et inquiétant
+    [47, 49.5, 94].forEach((freq, i) => {
+      const o = ac.createOscillator(); o.type = i === 2 ? 'triangle' : 'sine'; o.frequency.value = freq;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(i === 2 ? 0.05 : 0.18, t0 + 1.2);
+      g.gain.setValueAtTime(i === 2 ? 0.05 : 0.18, t0 + 6.2); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 7.3);
+      o.connect(g); g.connect(sortie); o.start(t0); o.stop(t0 + 7.4);
+    });
+
+    // Reconnexion à la fin
+    balayage(t0 + 6.9, 60, 1100, 0.45, 0.25);
+    souffle(t0 + 6.9, 0.3, 'highpass', 3000, 0.3);
+
+    return {
+      touche() {
+        const now = ac.currentTime;
+        const o = ac.createOscillator(); o.type = 'square'; o.frequency.value = 1500 + Math.random() * 600;
+        const g = ac.createGain(); enveloppe(g, now, 0.05, 0.002, 0.03);
+        o.connect(g); g.connect(sortie); o.start(now); o.stop(now + 0.05);
+      },
+    };
+  }
+
+  function reveil() {
+    if (doc.getElementById('cm-neo')) return;
+    // On ferme la liste déroulante si elle est ouverte, pour qu'elle ne cache pas le message
+    const actif = doc.activeElement;
+    if (actif) {
+      actif.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      actif.blur();
+    }
+    doc.body.classList.add('cm-neo');
+    const sons = sonsNeo();
+    if (!coupe) { fondu(0.02); parent.setTimeout(() => { if (!coupe) jouer(); }, 7600); }
+    const ecran = doc.createElement('div');
+    ecran.id = 'cm-neo';
+    ecran.innerHTML = '<canvas></canvas><div class="msg"><span class="ecrit"></span><small></small></div>';
+    doc.body.appendChild(ecran);
+
+    const toile = ecran.querySelector('canvas'), ctx = toile.getContext('2d');
+    toile.width = parent.innerWidth; toile.height = parent.innerHeight;
+    const taille = 18, colonnes = Math.floor(toile.width / taille) + 1;
+    const gouttes = Array(colonnes).fill(0).map(() => Math.random() * -40);
+    const pluie = parent.setInterval(() => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; ctx.fillRect(0, 0, toile.width, toile.height);
+      ctx.font = taille + 'px "Katakana Matrix", monospace';
+      gouttes.forEach((y, i) => {
+        ctx.fillStyle = Math.random() > 0.95 ? '#ffd0d0' : '#ff2a2a';
+        ctx.fillText(hasard(), i * taille, y * taille);
+        gouttes[i] = (y * taille > toile.height && Math.random() > 0.97) ? 0 : y + 1;
+      });
+    }, 45);
+
+    const phrases = ['WAKE UP, NEO…', 'THE MATRIX HAS YOU.', 'FOLLOW THE WHITE RABBIT.'];
+    const ecrit = ecran.querySelector('.ecrit'), petit = ecran.querySelector('small');
+    let p = 0;
+    function phrase() {
+      const texte = phrases[p]; let n = 0;
+      ecrit.textContent = '';
+      const frappe = parent.setInterval(() => {
+        n++; ecrit.textContent = texte.slice(0, n);
+        if (sons && texte[n - 1] !== ' ') sons.touche();
+        if (n >= texte.length) { parent.clearInterval(frappe); p++; if (p < phrases.length) parent.setTimeout(phrase, 900); }
+      }, 70);
+    }
+    phrase();
+    petit.textContent = 'KNOCK, KNOCK.';
+
+    parent.setTimeout(() => {
+      ecran.classList.add('fin');
+      parent.setTimeout(() => { parent.clearInterval(pluie); ecran.remove(); doc.body.classList.remove('cm-neo'); }, 800);
+    }, 7000);
+    ecran.addEventListener('click', () => ecran.classList.add('fin'));
+  }
+})();
+</script>
