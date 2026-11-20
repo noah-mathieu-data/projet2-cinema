@@ -1,4 +1,4 @@
-# Projet 2 · (Nom de groupe / cinéma à choisir)
+# Projet 2 · (Team Maniak - Cinémaniak)
 
 Projet de groupe de la Wild Code School avec Pierre, Clémence, Sébastien, Jordan et moi.
 
