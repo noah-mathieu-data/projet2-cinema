@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import streamlit as st
+import reco
 
 from design import (
     appliquer_style, intro_hacker, effets_globaux, ecran_ouverture, pilules,
@@ -65,21 +66,23 @@ def charger_films(chemin, chemin_tmdb):
     return films
 
 
+@st.cache_resource
+def preparer_moteur(_films):
+    # Moteur de recommandation de Pierre (reco.py) : on calcule une seule fois le vecteur de chaque film
+    base = _films.reset_index(drop=True)
+    base["keywords"] = base["keywords"].fillna("")
+    X = reco.preparer_caracteristiques(base)
+    modele = reco.creer_modele(X)
+    return base, X, modele
+
+
 def recommander(films, film, nombre=6):
-    # Recommandation simple en attendant le KNN : genres en commun, année et note proches
-    genres_film = set(film["genres"].split(","))
-    autres = films[films["tconst"] != film["tconst"]].copy()
-
-    genres_autres = autres["genres"].str.split(",").apply(set)
-    communs = genres_autres.apply(lambda g: len(g & genres_film))
-    total = genres_autres.apply(lambda g: len(g | genres_film))
-    score_genres = communs / total
-
-    ecart_annee = (autres["startYear"] - film["startYear"]).abs().clip(upper=30)
-    ecart_note = (autres["averageRating"] - film["averageRating"]).abs().clip(upper=4)
-
-    autres["score"] = 0.6 * score_genres + 0.2 * (1 - ecart_annee / 30) + 0.2 * (1 - ecart_note / 4)
-    return autres.sort_values(["score", "numVotes"], ascending=False).head(nombre)
+    base, X, modele = preparer_moteur(films)
+    i = base.index[base["tconst"] == film["tconst"]][0]
+    distances, indices = modele.kneighbors(X.iloc[[i]], n_neighbors=nombre + 1)
+    voisins = base.iloc[indices[0]].copy()
+    voisins["score"] = 1 - distances[0]
+    return voisins[voisins["tconst"] != film["tconst"]].head(nombre)
 
 
 def choisir(tconst):
