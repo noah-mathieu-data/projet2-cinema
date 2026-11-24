@@ -245,6 +245,10 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
   // ---- Musique de fond avec bouton pour couper le son ----
   const audio = new parent.Audio(parent.location.origin + '/app/static/musique.mp3');
   audio.loop = true;
+  // En ligne, la musique officielle n'existe pas (droits d'auteur) : on passe sur notre musique libre
+  audio.addEventListener('error', () => {
+    if (!audio.src.includes('musique_libre')) audio.src = parent.location.origin + '/app/static/musique_libre.mp3';
+  });
   audio.volume = 0;
   let coupe = false;
   try { coupe = parent.localStorage.getItem('cinemaniak-son') === 'off'; } catch (err) {}
@@ -287,7 +291,7 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
     if (coupe) fondu(0); else jouer();
   });
 
-  // Le bouton n'apparaît que si le fichier musique.mp3 existe dans static
+  // Le bouton n'apparaît que si une des deux musiques existe dans static
   audio.addEventListener('canplay', () => { bouton.style.display = 'block'; }, { once: true });
 
   // La musique démarre à la fin de l'intro (après le clic sur SE CONNECTER)
