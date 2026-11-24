@@ -63,6 +63,7 @@ def fiche_film(film, statut="hors", salle=None, jours=None):
     donnees = {
         "tconst": film["tconst"],
         "titre": film["primaryTitle"],
+        "original": film["titre_original"] if film["titre_original"] != film["primaryTitle"] else "",
         "annee": int(film["startYear"]),
         "duree": int(film["runtimeMinutes"]),
         "langue": film["original_language"] if isinstance(film["original_language"], str) else "??",

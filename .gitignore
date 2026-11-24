@@ -8,3 +8,6 @@ data/evenement.json
 data/stats.json
 data/forces.json
 .streamlit/secrets.toml
+
+data/activite.json
+data/ambiance.json

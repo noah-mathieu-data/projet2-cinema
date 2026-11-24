@@ -19,7 +19,7 @@ from operateur import (
 )
 import streamlit.components.v1 as components
 
-FICHIER = "data/films_filtres.csv"
+FICHIER = "data/films_selection.csv"
 FICHIER_TMDB = "data/films_tmdb.csv"
 DOSSIER_ASSETS = Path(__file__).parent / "assets"
 
@@ -39,10 +39,24 @@ st.set_page_config(page_title="Cinémaniak", page_icon="static/logo.png", layout
 @st.cache_data
 def charger_films(chemin, chemin_tmdb):
     films = pd.read_csv(chemin)
+
+    # Titres français (travail de Clémence) : on affiche le titre français partout
+    # et on garde le titre original à côté
+    films = films.rename(columns={"title": "titre_fr"})
+    films["titre_original"] = films["primaryTitle"]
+    films["primaryTitle"] = films["titre_fr"].fillna(films["primaryTitle"])
+
+    # On ajoute les infos TMDB sans dupliquer les colonnes déjà présentes
     tmdb = pd.read_csv(chemin_tmdb)
+    tmdb = tmdb.drop(columns=[c for c in tmdb.columns if c in films.columns and c != "tconst"])
     films = films.merge(tmdb, on="tconst", how="left")
     films = films.sort_values("numVotes", ascending=False)
-    films["libelle"] = films["primaryTitle"] + " (" + films["startYear"].astype(int).astype(str) + ")"
+
+    # Le libellé de la recherche contient les deux titres : on peut taper l'un ou l'autre
+    annee = " (" + films["startYear"].astype(int).astype(str) + ")"
+    films["libelle"] = films["primaryTitle"] + annee
+    different = films["titre_original"] != films["primaryTitle"]
+    films.loc[different, "libelle"] = films["primaryTitle"] + annee + " · " + films["titre_original"]
 
     # Petit décalage aléatoire pour que les points du graphique ne soient pas empilés
     hasard = np.random.default_rng(7)
@@ -223,7 +237,8 @@ def executer():
         selection = films[films["startYear"] == int(reste)]
         sortie = liste_films(selection.head(5)) if len(selection) else [f"Aucun film de {reste} dans la Matrice."]
     elif ordre == "cherche" and reste:
-        selection = films[films["primaryTitle"].str.lower().str.contains(reste, regex=False)]
+        selection = films[films["primaryTitle"].str.lower().str.contains(reste, regex=False)
+                          | films["titre_original"].str.lower().str.contains(reste, regex=False)]
         sortie = liste_films(selection.head(5)) if len(selection) else [f"Aucun titre ne contient « {html.escape(reste)} »."]
     elif ordre == "hasard":
         sortie = liste_films(films.sample(1))
