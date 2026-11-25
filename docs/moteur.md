@@ -8,7 +8,7 @@ moteur tient dans le fichier `scripts/reco.py`. L'appli de démonstration est
 
 ## 1. Le principe
 
-1. Chaque film du catalogue (6 089 films, fichier `data/films_prepares.csv`)
+1. Chaque film du catalogue (6 942 films, fichier `data/films_prepares.csv`)
    est transformé en une **ligne de nombres** : son vecteur.
 2. Pour un film choisi, on cherche les films dont le vecteur est le plus
    **proche**, avec `NearestNeighbors` de scikit-learn et la **distance
@@ -34,10 +34,10 @@ est préparé avec la méthode qui lui convient, puis multiplié par un **poids*
 | Durée | `runtimeMinutes` | plafonnée à 180 min, puis min-max | 1 | **0** (désactivée) |
 | Note | `averageRating` | min-max | 1 | 0,7 |
 | Popularité | `numVotes` | logarithme (base 10), puis min-max | 1 | 0,7 |
-| Mots-clés | `keywords` (TMDB) | TF-IDF | 6 476 | 1 |
+| Mots-clés | `keywords` (TMDB) | TF-IDF | 6 934 | 1 |
 | Langue | `original_language` | colonnes 0/1, une par langue (*one-hot*) | 50 | 0,8 |
 
-Au total, chaque film est décrit par **6 551 nombres**.
+Au total, chaque film est décrit par **7 009 nombres**.
 
 ### 2.1. Les genres et la langue : des colonnes 0/1
 
@@ -53,12 +53,12 @@ Au total, chaque film est décrit par **6 551 nombres**.
 ### 2.2. Les valeurs numériques : min-max
 
 L'année, la durée, la note et la popularité n'ont pas la même échelle
-(de 1970 à 2026, de 63 à 566 minutes, de 6 à 9,1, de 10 000 à 3,25 millions de votes). Le
+(de 1970 à 2026, de 63 à 566 minutes, de 1,8 à 9,3, de 2 000 à 3,27 millions de votes). Le
 `MinMaxScaler` ramène chacune entre 0 et 1, pour qu'aucune n'écrase les autres
 à cause de son unité. Deux préparations avant cela :
 
 - **Popularité** : on prend le **logarithme** du nombre de votes, qui va de
-  10 000 à 3,25 millions. Sans lui, quelques blockbusters seraient
+  2 000 à 3,27 millions. Sans lui, quelques blockbusters seraient
   proches de 1 et presque tous les autres films écrasés près de 0.
 - **Durée** : plafonnée à 180 minutes, pour que quelques films très longs
   (jusqu'à 566 minutes) ne tassent pas tous les autres près de 0.
@@ -75,15 +75,15 @@ le contenu du film, ce que les genres ne disent pas. Ils sont transformés avec
 
 - **une colonne par mot-clé** du vocabulaire ;
 - chaque mot-clé reçoit un poids d'autant plus grand qu'il est **rare** dans
-  le catalogue (c'est l'IDF). Exemple : « xenomorph » (5 films, la saga Alien)
-  pèse beaucoup plus que « alien » (98 films). Partager un mot rare rapproche
+  le catalogue (c'est l'IDF). Exemple : « xenomorph » (7 films, la saga Alien et
+  les deux Alien vs. Predator) pèse beaucoup plus que « alien » (112 films). Partager un mot rare rapproche
   donc fortement deux films ; partager un mot courant les rapproche peu ;
 - réglages utilisés :
   - découpage aux virgules (`tokenizer`), pour que « space marine » reste un
     seul mot-clé ;
   - `binary=True` : un mot-clé répété dans la liste d'un film (erreur de
     saisie de TMDB) ne compte qu'une fois ;
-  - `min_df=2` : les mots-clés présents dans un seul film (49 % du
+  - `min_df=2` : les mots-clés présents dans un seul film (48 % du
     vocabulaire) sont écartés, puisqu'ils ne peuvent rapprocher aucun film d'un
     autre.
 
@@ -95,11 +95,11 @@ ce sont déjà des étiquettes courtes, pas du texte libre.
 
 ### 2.4. Pourquoi les mots-clés n'écrasent pas les autres blocs
 
-On pourrait craindre que les 6 476 colonnes des mots-clés pèsent plus que les
+On pourrait craindre que les 6 934 colonnes des mots-clés pèsent plus que les
 quelques colonnes des autres blocs. Ce n'est pas le cas : `TfidfVectorizer`
 ramène la ligne de chaque film à une **longueur de 1**, quel que soit son
 nombre de colonnes. En longueur, les trois grandes familles de blocs sont du
-même ordre de grandeur (genres : 1,14 en moyenne ; valeurs numériques : 0,65 ;
+même ordre de grandeur (genres : 1,14 en moyenne ; valeurs numériques : 0,80 ;
 mots-clés : 1). Ce sont donc bien les **poids** qui règlent l'importance de
 chaque bloc.
 
@@ -134,14 +134,15 @@ Ce qu'il faut savoir pour régler les poids :
   tous les poids par un même nombre ne change aucune recommandation. On peut
   donc toujours les garder entre 0 et 1.
 - **Un poids à 0 désactive un bloc.** C'est le cas de la durée : avec ou sans
-  elle, les recommandations des films tests ne changeaient qu'en fin de liste.
+  elle, les recommandations des films tests changeaient à peine (un seul film
+  sur cinq, pour deux des huit films tests).
   Deux films de 90 et de 120 minutes peuvent très bien se ressembler.
 - **Les poids ne sont pas des pourcentages d'influence** : l'effet d'un bloc
   dépend aussi de son nombre de colonnes et de ses valeurs. Ils se règlent en
   observant les recommandations obtenues sur quelques films tests (Alien, Taxi,
   Toy Story, Matrix, Intouchables, Amélie…).
 - **Piste de réglage** : les genres pèsent encore beaucoup. *Aliens* n'arrive
-  qu'au 20ᵉ rang des voisins d'*Alien*, alors qu'il partage 7 mots-clés avec
+  qu'au 71ᵉ rang des voisins d'*Alien*, alors qu'il partage 7 mots-clés avec
   lui, parce qu'IMDb le classe en Action, Adventure, Horror, sans Sci-Fi. Un
   poids plus faible pour les genres serait à essayer.
 
