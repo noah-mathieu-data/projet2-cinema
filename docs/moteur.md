@@ -2,7 +2,9 @@
 
 Ce document explique comment le moteur décrit chaque film, comment il trouve
 les films qui se ressemblent, et comment le régler ou l'enrichir. Tout le
-moteur tient dans le fichier `reco.py`.
+moteur tient dans le fichier `scripts/reco.py`. L'appli de démonstration est
+`scripts/app_pierre.py` ; elle se lance depuis la racine du projet avec
+`streamlit run scripts/app_pierre.py`.
 
 ## 1. Le principe
 
@@ -192,8 +194,13 @@ le moteur les retrouve mal. Ce point fait l'objet d'une note séparée :
 
 ## 6. Utiliser le moteur dans du code
 
+Depuis la racine du projet :
+
 ```python
+import sys
 import pandas as pd
+
+sys.path.append("scripts")    # reco.py est dans scripts/
 import reco
 
 films = pd.read_csv("data/films_prepares.csv")

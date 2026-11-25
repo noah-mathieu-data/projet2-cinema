@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 import reco
 
-DOSSIER = Path(__file__).parent    # le dossier qui contient app_pierre.py
+DOSSIER = Path(__file__).parent.parent    # la racine du projet (scripts/ est un cran plus bas)
 
 st.set_page_config(page_title="Que voir ensuite ?", page_icon="🎬")
 
