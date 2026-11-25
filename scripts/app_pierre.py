@@ -10,11 +10,8 @@ st.set_page_config(page_title="Que voir ensuite ?", page_icon="🎬")
 
 
 def libelle(film):
-    texte = f"{film['title']} ({int(film['startYear'])})"
-    # titre original seulement s'il existe et s'il est différent
-    if pd.notna(film["original_title"]) and film["original_title"] != film["title"]:
-        texte = texte + " — " + film["original_title"]
-    return texte
+    # titre français (ou, à défaut, titre original fourni par l'équipe) et année
+    return f"{film['title']} ({int(film['startYear'])})"
 
 
 @st.cache_resource
@@ -67,11 +64,7 @@ if i_film is not None:
     tconst = films["tconst"][i_film]
     st.caption("Cliquez sur une affiche pour voir les films qui lui ressemblent.")
 
-    st.subheader("Dans le même esprit")
-    proches = reco.recommander(tconst, films, X, modele, nb=5)
-    afficher_ligne(proches)
-
-    st.subheader("Pour changer un peu")
-    voisins = reco.recommander(tconst, films, X, modele, nb=30)
-    plus_loin = voisins.iloc[14:30]    # voisins de rang 15 à 30
-    afficher_ligne(plus_loin.sample(5, random_state=i_film))
+    st.subheader("Les 10 films les plus proches")
+    proches = reco.recommander(tconst, films, X, modele, nb=10)
+    afficher_ligne(proches.iloc[0:5])     # rangs 1 à 5
+    afficher_ligne(proches.iloc[5:10])    # rangs 6 à 10

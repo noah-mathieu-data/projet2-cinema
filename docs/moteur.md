@@ -13,18 +13,16 @@ moteur tient dans le fichier `scripts/reco.py`. L'appli de démonstration est
 2. Pour un film choisi, on cherche les films dont le vecteur est le plus
    **proche**, avec `NearestNeighbors` de scikit-learn et la **distance
    cosinus**.
-3. L'appli affiche deux lignes :
-   - **Dans le même esprit** : les 5 films les plus proches ;
-   - **Pour changer un peu** : 5 films tirés au hasard parmi les voisins de
-     rang 15 à 30 (le tirage est fixe pour un film donné).
+3. L'appli affiche les **10 films les plus proches**, sur deux rangées de
+   5 affiches.
 
 `NearestNeighbors` est un outil **non supervisé** : il n'y a rien à prédire,
 pas de jeu d'entraînement ni de test. Le `fit` se contente de mémoriser les
 vecteurs ; le calcul des distances se fait au moment de la recherche.
 
-## 2. Les sept blocs du vecteur
+## 2. Les neuf blocs du vecteur
 
-Le vecteur d'un film est la mise bout à bout de **sept blocs**. Chaque bloc
+Le vecteur d'un film est la mise bout à bout de **neuf blocs**. Chaque bloc
 est préparé avec la méthode qui lui convient, puis multiplié par un **poids**.
 
 | Bloc | Colonne d'origine | Préparation | Nombre de colonnes | Poids actuel |
@@ -36,8 +34,10 @@ est préparé avec la méthode qui lui convient, puis multiplié par un **poids*
 | Popularité | `numVotes` | logarithme (base 10), puis min-max | 1 | 0,7 |
 | Mots-clés | `keywords` (TMDB) | TF-IDF | 6 934 | 1 |
 | Langue | `original_language` | colonnes 0/1, une par langue (*one-hot*) | 50 | 0,8 |
+| Réalisateurs | `directors` (IMDb) | TF-IDF sur les codes `nm…` | 1 454 | 0,4 |
+| Acteurs | `acteurs` (IMDb, 4 têtes d'affiche) | TF-IDF sur les codes `nm…` | 3 773 | 0,7 |
 
-Au total, chaque film est décrit par **7 009 nombres**.
+Au total, chaque film est décrit par **12 236 nombres**.
 
 ### 2.1. Les genres et la langue : des colonnes 0/1
 
@@ -103,6 +103,36 @@ même ordre de grandeur (genres : 1,14 en moyenne ; valeurs numériques : 0,80 ;
 mots-clés : 1). Ce sont donc bien les **poids** qui règlent l'importance de
 chaque bloc.
 
+### 2.5. Les réalisateurs et les acteurs : des personnes en TF-IDF
+
+Même démarche que pour les mots-clés, mais avec des personnes :
+
+- **les sources** : les fichiers IMDb `title.crew` (réalisateurs) et
+  `title.principals` (acteurs, avec leur rang au générique, colonne
+  `ordering`) ; la catégorie `self` (personnes qui jouent leur propre rôle,
+  comme dans les Jackass) est comptée avec les acteurs ;
+- **les identifiants plutôt que les noms** : chaque personne est désignée par
+  son identifiant IMDb (`nconst`, de la forme `nm0000…`), pour éviter les
+  homonymes ; les noms (colonnes `realisation` et `casting`) ne servent qu'à
+  l'affichage ;
+- **les têtes d'affiche seulement** : les 4 premiers rôles, pour ne pas
+  rapprocher deux films par un second rôle ;
+- **TF-IDF avec `min_df=2`** : une personne présente dans un seul film ne
+  rapproche aucun film d'un autre ; une star présente dans des dizaines de
+  films (Tom Hanks, 46 films) pèse moins qu'un acteur plus rare.
+
+Effets observés sur les films tests (partie 6 du notebook) : les films du
+même réalisateur remontent (les Hobbit pour *La Communauté de l'anneau*, les
+films de Toledano et Nakache pour *Intouchables*), ainsi que les films des
+mêmes acteurs (Audrey Tautou pour *Amélie*, Hugo Weaving pour *Matrix*).
+
+**Un biais à connaître** : un film dont le réalisateur (ou les acteurs) n'a
+aucun autre film dans le catalogue a un bloc entièrement nul. Avec la distance
+cosinus, ces films « orphelins » sont un peu favorisés par rapport aux films
+d'autres auteurs connus. C'est pourquoi le poids des réalisateurs reste modéré
+(0,4) ; le biais est plus faible pour les acteurs (434 films concernés, contre
+1 714 pour les réalisateurs).
+
 ## 3. La distance cosinus
 
 La distance cosinus compare la **direction** de deux vecteurs, pas leur
@@ -112,13 +142,14 @@ grandit quand leurs profils divergent.
 
 ## 4. Les poids : on peut les modifier
 
-Les sept poids sont rangés dans le dictionnaire `POIDS`, en haut de
+Les neuf poids sont rangés dans le dictionnaire `POIDS`, en haut de
 `reco.py` :
 
 ```python
 POIDS = {"genres": 0.7, "startYear": 0.7, "runtimeMinutes": 0,
          "averageRating": 0.7, "log_votes": 0.7,
-         "mots_cles": 1, "langue": 0.8}
+         "mots_cles": 1, "langue": 0.8,
+         "realisateurs": 0.4, "acteurs": 0.7}
 ```
 
 Pour essayer un autre réglage, il suffit de changer ces valeurs et de relancer
@@ -151,28 +182,7 @@ Ce qu'il faut savoir pour régler les poids :
 Le moteur est construit en blocs : on peut en ajouter de nouveaux, chacun avec
 son poids, sans toucher aux autres.
 
-### 5.1. Réalisateurs et acteurs principaux
-
-On applique la même démarche que pour les mots-clés, mais avec des personnes :
-
-- **les sources** : les fichiers IMDb `title.crew` (réalisateurs) et
-  `title.principals` (acteurs, avec leur rang au générique, colonne
-  `ordering`) ;
-- **les identifiants plutôt que les noms** : chaque personne est désignée par
-  son identifiant IMDb (`nconst`, de la forme `nm0000…`), pour éviter les
-  homonymes ;
-- **les têtes d'affiche seulement** : 3 à 5 premiers rôles, pour ne pas
-  rapprocher deux films par un figurant ;
-- **TF-IDF avec `min_df=2`**, comme pour les mots-clés : un réalisateur peu
-  prolifique partagé par deux films est un signal fort ; un acteur présent
-  dans des dizaines de films l'est beaucoup moins.
-
-Exemple : *Alien* et *Aliens* n'ont pas le même réalisateur (Ridley Scott,
-James Cameron), mais partagent leur actrice principale, Sigourney Weaver.
-
-Ce serait deux nouveaux blocs, donc deux nouveaux poids.
-
-### 5.2. Le résumé du film (synopsis)
+### 5.1. Le résumé du film (synopsis)
 
 La colonne `overview` de TMDB (absente du catalogue actuel, à récupérer par
 jointure) pourrait former un bloc TF-IDF de plus. Mais c'est du **texte libre**,
@@ -186,7 +196,7 @@ en anglais, qu'il faudrait préparer :
 Atout : les résumés citent souvent les personnages (Ripley, Neo, Astérix…),
 des mots rares qui relieraient les films d'une même saga.
 
-### 5.3. Les sagas
+### 5.2. Les sagas
 
 Certaines sagas sont incomplètes, soit parce que des films sont absents du
 catalogue (filtres sur l'année, la note ou le nombre de votes), soit parce que
@@ -205,7 +215,7 @@ sys.path.append("scripts")    # reco.py est dans scripts/
 import reco
 
 films = pd.read_csv("data/films_prepares.csv")
-X = reco.preparer_caracteristiques(films)        # les 7 blocs pondérés
+X = reco.preparer_caracteristiques(films)        # les 9 blocs pondérés
 modele = reco.creer_modele(X)                     # NearestNeighbors, cosinus
 reco.recommander("tt0078748", films, X, modele)   # les 5 voisins d'Alien
 ```

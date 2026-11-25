@@ -5,14 +5,27 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 
 
-# Poids retenus dans le notebook (version 3, durée à 0)
+# Poids retenus dans le notebook (version 3, durée à 0, plus réalisateurs et acteurs)
 POIDS = {"genres": 0.7, "startYear": 0.7, "runtimeMinutes": 0,
          "averageRating": 0.7, "log_votes": 0.7,
-         "mots_cles": 1, "langue": 0.8}
+         "mots_cles": 1, "langue": 0.8,
+         "realisateurs": 0.4, "acteurs": 0.7}
 
 
 def decouper(texte):
     return texte.split(", ")    # un mot-clé = une expression entre virgules
+
+
+def decouper_virgule(texte):
+    return texte.split(",")     # codes IMDb nm… séparés par une virgule
+
+
+def decouper_acteurs(texte):
+    liste = []
+    for nm in texte.split(","):
+        if nm != "":            # ignore la chaîne vide des films sans acteur
+            liste.append(nm)
+    return liste
 
 
 def preparer_caracteristiques(films, poids=POIDS):
@@ -36,10 +49,20 @@ def preparer_caracteristiques(films, poids=POIDS):
     # Langue originale en colonnes 0/1
     langues = pd.get_dummies(films["original_language"].fillna("inconnue")).astype(int)
 
+    # Réalisateurs et têtes d'affiche en TF-IDF
+    tfidf_real = TfidfVectorizer(tokenizer=decouper_virgule, token_pattern=None,
+                                 binary=True, min_df=2)
+    real = tfidf_real.fit_transform(films["directors"]).toarray()
+    tfidf_act = TfidfVectorizer(tokenizer=decouper_acteurs, token_pattern=None,
+                                binary=True, min_df=2)
+    act = tfidf_act.fit_transform(films["acteurs"].fillna("")).toarray()
+
     X = np.hstack([poids["genres"] * genres.values,
                    numeriques_norm.values,
                    poids["mots_cles"] * mots,
-                   poids["langue"] * langues.values])
+                   poids["langue"] * langues.values,
+                   poids["realisateurs"] * real,
+                   poids["acteurs"] * act])
     return pd.DataFrame(X)
 
 

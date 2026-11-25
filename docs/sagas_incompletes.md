@@ -116,7 +116,7 @@ Pour inclure les Tuche à coup sûr, seule l'option A (ajout manuel) suffit.
   saga se rapprocheraient fortement.
 - Ajouter les résumés TMDB (`overview`) comme bloc TF-IDF : les noms des
   personnages (Ripley, Neo, Astérix…) relieraient naturellement les films
-  d'une saga (voir `moteur.md`, section 5.2).
+  d'une saga (voir `moteur.md`, section 5.1).
 - Baisser le poids des genres : Aliens remonterait, mais l'effet sur les
   autres films est à tester.
 
