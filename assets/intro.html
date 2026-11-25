@@ -6,7 +6,7 @@
   if (parent.__introCinemaniak) return;
   parent.__introCinemaniak = true;
 
-  const dossier = parent.location.origin + '/app/static/';
+  const dossier = new URL('app/static/', parent.location.href).href;
   const POLICE = "'Matrix Sans Video', monospace";
 
   const css = `

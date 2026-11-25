@@ -243,11 +243,11 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
 
 
   // ---- Musique de fond avec bouton pour couper le son ----
-  const audio = new parent.Audio(parent.location.origin + '/app/static/musique.mp3');
+  const audio = new parent.Audio(new URL('app/static/musique.mp3', parent.location.href).href);
   audio.loop = true;
   // En ligne, la musique officielle n'existe pas (droits d'auteur) : on passe sur notre musique libre
   audio.addEventListener('error', () => {
-    if (!audio.src.includes('musique_libre')) audio.src = parent.location.origin + '/app/static/musique_libre.mp3';
+    if (!audio.src.includes('musique_libre')) audio.src = new URL('app/static/musique_libre.mp3', parent.location.href).href;
   });
   audio.volume = 0;
   let coupe = false;

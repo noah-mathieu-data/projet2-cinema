@@ -1,5 +1,5 @@
-@font-face { font-family: 'Matrix Sans Video'; src: url('/app/static/matrixsansvideo.woff2') format('woff2'); size-adjust: 84%; font-display: swap; }
-@font-face { font-family: 'Katakana Matrix'; src: url('/app/static/katakana.woff2') format('woff2'); font-display: block; }
+@font-face { font-family: 'Matrix Sans Video'; src: url('app/static/matrixsansvideo.woff2') format('woff2'); size-adjust: 84%; font-display: swap; }
+@font-face { font-family: 'Katakana Matrix'; src: url('app/static/katakana.woff2') format('woff2'); font-display: block; }
 
 [data-testid="stAppViewContainer"] { background: #000000; }
 [data-testid="stHeader"] { background: transparent; }

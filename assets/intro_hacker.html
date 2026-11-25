@@ -7,7 +7,7 @@ console.log('CINEMANIAK 1 : le script démarre');
   if (parent.__introCinemaniak) { console.log('CINEMANIAK : déjà jouée, on saute'); return; }
   parent.__introCinemaniak = true;
 
-  const dossier = parent.location.origin + '/app/static/';
+  const dossier = new URL('app/static/', parent.location.href).href;
 
   const css = `
 #cm-porte { position: fixed; inset: 0; z-index: 1000000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; cursor: pointer; font-family: 'Matrix Sans Video', monospace; color: #00FF41; }
