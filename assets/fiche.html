@@ -138,13 +138,13 @@ html, body { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/
 <script>
 const FILM = DONNEES_FILM;
 
-// Quand on change de film : glitch de transition puis on remonte en douceur jusqu'à la fiche
+// Quand on change de film sans changer d'onglet : glitch de transition puis on remonte en douceur jusqu'à la fiche
+// (en arrivant depuis un autre onglet, pas de glitch : la page remonte simplement en haut)
 try {
-  if (window.parent.__ficheVue) {
+  if (FILM.transition) {
     if (window.parent.cinemaniakGlitch) window.parent.cinemaniakGlitch();
     window.frameElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  window.parent.__ficheVue = true;
   if (window.parent.cinemaniakDossier) window.parent.cinemaniakDossier();
 } catch (e) {}
 document.addEventListener('keydown', (e) => { try { window.parent.cinemaniakTouche(e); } catch (err) {} });

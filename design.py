@@ -53,7 +53,7 @@ def intro_hacker():
     components.html(html, height=1)
 
 
-def fiche_film(film, statut="hors", salle=None, jours=None):
+def fiche_film(film, statut="hors", salle=None, jours=None, transition=False):
     html = (DOSSIER / "fiche.html").read_text(encoding="utf-8")
 
     resume = film["overview"] if isinstance(film["overview"], str) else ""
@@ -77,6 +77,7 @@ def fiche_film(film, statut="hors", salle=None, jours=None):
         "statut": statut,
         "salle": salle,
         "jours": jours or [],
+        "transition": transition,
     }
     components.html(html.replace("DONNEES_FILM", json.dumps(donnees)), height=680)
 
