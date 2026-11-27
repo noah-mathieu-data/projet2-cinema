@@ -85,8 +85,24 @@ def recommander(films, film, nombre=6):
     return voisins[voisins["tconst"] != film["tconst"]].head(nombre)
 
 
+ONGLETS = ["À L'AFFICHE", "FILMS", "DÉCOUVRIR", "COULISSES", "★ MA LISTE"]
+
+
 def choisir(tconst):
     st.session_state["choix"] = tconst
+    # Quand on ouvre un film depuis un autre onglet, on bascule sur l'onglet FILMS et on remonte en haut
+    if st.session_state.get("onglet") != "FILMS":
+        st.session_state["onglet"] = "FILMS"
+        st.session_state["onglet_precedent"] = "FILMS"
+        st.session_state["remonter"] = True
+
+
+def changer_onglet():
+    # On ne peut pas « désélectionner » un onglet : un deuxième clic sur l'onglet actif le garde
+    if st.session_state.get("onglet") is None:
+        st.session_state["onglet"] = st.session_state.get("onglet_precedent", ONGLETS[0])
+    st.session_state["onglet_precedent"] = st.session_state["onglet"]
+    st.session_state["remonter"] = True
 
 
 def clic_matrice():
@@ -339,11 +355,20 @@ if "choix" not in st.session_state:
     pilule_bleue()
     st.session_state["duel_b"] = st.session_state["choix"]
     st.session_state["choix"] = st.session_state["duel_a"]
+    st.session_state["onglet"] = ONGLETS[0]
+    st.session_state["onglet_precedent"] = ONGLETS[0]
+    st.session_state.pop("remonter", None)
+
+# Les menus déroulants des onglets cachés gardent leur film (sinon Streamlit les oublie)
+for cle in ("choix", "duel_a", "duel_b"):
+    if cle in st.session_state:
+        st.session_state[cle] = st.session_state[cle]
 
 appliquer_style()
 intro_hacker()
 effets_globaux()
-ecran_ouverture(len(films))
+with st.container(key="ouverture"):
+    ecran_ouverture(len(films))
 bandeau_annonce()
 signal_evenement()
 appliquer_ambiance()
@@ -351,61 +376,96 @@ if st.session_state.get("operateur"):
     st.markdown('<style>' + OPERATEUR_CSS + '</style><div class="bandeau-operateur">⚠ ACCÈS NIVEAU 5 · BIENVENUE, ' + html.escape(str(st.secrets["operateur"].get("identifiant", "")).upper()) + '</div>',
                 unsafe_allow_html=True)
     salle_de_controle(films, libelles, programme, candidats, semaine, lire_votes(semaine), effacer_votes, seances)
-pilules(pilule_bleue_cliquee, pilule_rouge_cliquee)
-tableau_seances(lignes_tableau())
-a_l_affiche(programme, choisir, *film_salle_neuf())
-votes = lire_votes(semaine)
-candidats_votes = candidats.copy()
-candidats_votes["votes"] = [votes.get(t, 0) for t in candidats["tconst"]]
-salle_neuf(candidats_votes, voter, st.session_state.get("a_vote"), decor, forces().get("salle9", {}).get(str(semaine)))
+# ================== BARRE D'ONGLETS (en haut, comme un vrai site de cinéma) ==================
+st.segmented_control("Navigation", ONGLETS, key="onglet", on_change=changer_onglet, label_visibility="collapsed")
+onglet = st.session_state.get("onglet") or ONGLETS[0]
+# Le grand titre CINÉMANIAK n'apparaît que sur la page d'accueil (il continue de tourner en coulisses pour la pluie)
+if onglet != ONGLETS[0]:
+    st.markdown("<style>.st-key-ouverture, [data-testid='stLayoutWrapper']:has(> .st-key-ouverture) { height: 0 !important; min-height: 0 !important; overflow: hidden; margin: 0 !important; visibility: hidden; }</style>", unsafe_allow_html=True)
 
-resultat = None
-if "oracle" in st.session_state:
-    tconst_oracle, prophetie = st.session_state["oracle"]
-    resultat = (films[films["tconst"] == tconst_oracle].iloc[0], prophetie)
-oracle(consulter_oracle, resultat, choisir)
-
-st.markdown('<div id="sec-recherche"></div>', unsafe_allow_html=True)
-choix = st.selectbox(
-    "root@cinemaniak:~$ rechercher_film",
-    films["tconst"],
-    format_func=lambda t: libelles[t],
-    key="choix",
-)
-
-film = films[films["tconst"] == choix].iloc[0]
-if st.session_state.get("dernier_compte") != choix:
-    st.session_state["dernier_compte"] = choix
-    compter("films", choix)
-    journal(f"📁 Dossier ouvert : {film['primaryTitle']}")
-
-# Le film est-il à l'affiche, candidat à la Salle 9 ou hors programmation ?
-if film["tconst"] in programme["tconst"].values:
-    rang = programme["tconst"].tolist().index(film["tconst"])
-    salle = int(programme.iloc[rang]["salle"])
-    fiche_film(film, "affiche", salle, seances(semaine, rang))
-elif film["tconst"] in candidats["tconst"].values:
-    fiche_film(film, "candidat")
-else:
-    fiche_film(film, "hors")
-
-bouton_liste(film["tconst"] in st.session_state.get("liste", []), basculer_liste)
-
+# Le film choisi et ses recommandations servent dans plusieurs onglets
+film = films[films["tconst"] == st.session_state["choix"]].iloc[0]
 recos = recommander(films, film)
-cartes_recommandations(recos, choisir)
-ma_liste(st.session_state.get("liste", []), films, choisir, retirer_liste)
-explorer_matrice(films, film, recos, clic_matrice)
-duel(films, libelles)
-if "partie" not in st.session_state:
-    nouvelle_partie()
-decryptage(manches_decryptage(st.session_state["partie"]), nouvelle_partie)
-terminal(st.session_state.get("historique", []), executer)
-salle_des_machines(films)
+
+if onglet == "À L'AFFICHE":
+    # Le programme du cinéma : séances du jour, les 15 films de la semaine et la Salle 9
+    tableau_seances(lignes_tableau())
+    a_l_affiche(programme, choisir, *film_salle_neuf())
+    votes = lire_votes(semaine)
+    candidats_votes = candidats.copy()
+    candidats_votes["votes"] = [votes.get(t, 0) for t in candidats["tconst"]]
+    salle_neuf(candidats_votes, voter, st.session_state.get("a_vote"), decor, forces().get("salle9", {}).get(str(semaine)))
+
+elif onglet == "FILMS":
+    # Trouver un film : pilules, recherche, dossier, recommandations et carte de la Matrice
+    # La recherche en premier, bien visible, avec le mode d'emploi en 3 étapes
+    st.markdown(
+        '<div class="recos-titre recherche-titre" id="sec-recherche">&gt; TROUVER UN FILM · <span>TAPE UN FILM QUE TU AS AIMÉ</span></div>'
+        '<div class="recherche-etapes">'
+        '<div><b>1</b>Tape ou choisis un film<br><i>titre français ou original</i></div>'
+        '<div><b>2</b>Ouvre son dossier<br><i>séances, note, résumé</i></div>'
+        '<div><b>3</b>La Matrice te recommande<br><i>6 films du catalogue</i></div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    choix = st.selectbox(
+        "🔍 RECHERCHER UN FILM (raccourci : touche /)",
+        films["tconst"],
+        format_func=lambda t: libelles[t],
+        key="choix",
+    )
+    pilules(pilule_bleue_cliquee, pilule_rouge_cliquee)
+
+    film = films[films["tconst"] == choix].iloc[0]
+    transition = not st.session_state.get("remonter") and st.session_state.get("fiche_derniere") not in (None, choix)
+    st.session_state["fiche_derniere"] = choix
+    if st.session_state.get("dernier_compte") != choix:
+        st.session_state["dernier_compte"] = choix
+        compter("films", choix)
+        journal(f"📁 Dossier ouvert : {film['primaryTitle']}")
+
+    # Le film est-il à l'affiche, candidat à la Salle 9 ou hors programmation ?
+    if film["tconst"] in programme["tconst"].values:
+        rang = programme["tconst"].tolist().index(film["tconst"])
+        salle = int(programme.iloc[rang]["salle"])
+        fiche_film(film, "affiche", salle, seances(semaine, rang), transition)
+    elif film["tconst"] in candidats["tconst"].values:
+        fiche_film(film, "candidat", transition=transition)
+    else:
+        fiche_film(film, "hors", transition=transition)
+
+    bouton_liste(film["tconst"] in st.session_state.get("liste", []), basculer_liste)
+
+    cartes_recommandations(recos, choisir)
+    explorer_matrice(films, film, recos, clic_matrice)
+
+elif onglet == "DÉCOUVRIR":
+    # Les façons ludiques de trouver un film : l'Oracle, le duel et le jeu du décryptage
+    resultat = None
+    if "oracle" in st.session_state:
+        tconst_oracle, prophetie = st.session_state["oracle"]
+        resultat = (films[films["tconst"] == tconst_oracle].iloc[0], prophetie)
+    oracle(consulter_oracle, resultat, choisir)
+
+    duel(films, libelles)
+    if "partie" not in st.session_state:
+        nouvelle_partie()
+    decryptage(manches_decryptage(st.session_state["partie"]), nouvelle_partie)
+
+elif onglet == "COULISSES":
+    # Les coulisses du catalogue : le terminal et les statistiques de la salle des machines
+    terminal(st.session_state.get("historique", []), executer)
+    salle_des_machines(films)
+
+else:
+    ma_liste(st.session_state.get("liste", []), films, choisir, retirer_liste)
 
 pied_de_page(len(films))
 fenetre_connexion()
 
 # Animations d'entrée et de sortie du mode opérateur (jouées une seule fois)
+if st.session_state.pop("remonter", False):
+    components.html("<script>try{window.parent.scrollTo({top: 0, behavior: 'auto'});}catch(e){}</script>", height=1)
 if st.session_state.pop("scan", False):
     nom = html.escape(str(st.secrets["operateur"].get("identifiant", "opérateur")).upper())
     components.html((DOSSIER_ASSETS / "scan.html").read_text(encoding="utf-8").replace("NOM_OPERATEUR", nom), height=1)

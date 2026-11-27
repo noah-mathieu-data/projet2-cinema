@@ -17,7 +17,7 @@
 #cm-soustitre.visible { opacity: 1; }
 
 /* Visite guidée */
-#cm-demo { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 999998; pointer-events: none; padding: 8px 22px; font-family: 'Matrix Sans Video', monospace;
+#cm-demo { position: fixed; top: 128px; left: 50%; transform: translateX(-50%); z-index: 999998; pointer-events: none; padding: 8px 22px; font-family: 'Matrix Sans Video', monospace;
   font-size: 21px; letter-spacing: 0.12em; color: #000; background: #00FF41; box-shadow: 0 0 30px #00FF41; }
 
 /* Générique */
@@ -110,6 +110,21 @@ body.cm-cuillere .stApp { filter: url(#cm-tordre); }
 #cm-cuillere-msg small { display: block; font-size: 0.4em; color: #7CFC9A; letter-spacing: 0.3em; }
 
 /* Menu de navigation */
+#cm-voile { position: fixed; left: 0; right: 0; top: 116px; bottom: 0; z-index: 999985; pointer-events: none; opacity: 0; transition: opacity 0.18s ease;
+  background: radial-gradient(circle at 50% 30%, rgba(0, 22, 6, 0.96), rgba(0, 0, 0, 0.98) 70%); }
+#cm-voile.actif { opacity: 1; transition: opacity 0.12s ease; }
+#cm-sous-menu { position: fixed; z-index: 999991; min-width: 260px; display: flex; flex-direction: column; padding: 8px 0; background: rgba(0, 10, 3, 0.97);
+  border: 1px solid rgba(0, 255, 65, 0.45); border-top: 2px solid #00FF41; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), 0 0 18px rgba(0, 255, 65, 0.15);
+  opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity 0.15s, transform 0.15s; }
+#cm-sous-menu.ouvert { opacity: 1; transform: none; pointer-events: auto; }
+#cm-sous-menu a { padding: 9px 18px; color: #7CFC9A; text-decoration: none; font-family: 'Matrix Sans Video', monospace; letter-spacing: 0.12em; font-size: 0.95rem; }
+#cm-sous-menu a:hover { color: #00FF41; background: rgba(0, 255, 65, 0.08); text-shadow: 0 0 8px #00FF41; }
+#cm-haut { position: fixed; left: 18px; bottom: 18px; z-index: 999986; padding: 10px 16px; background: rgba(0, 10, 3, 0.92); color: #00FF41; cursor: pointer;
+  border: 1px solid rgba(0, 255, 65, 0.6); font-family: 'Matrix Sans Video', monospace; letter-spacing: 0.25em; box-shadow: 0 0 14px rgba(0, 255, 65, 0.25);
+  opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity 0.2s, transform 0.2s; }
+#cm-haut.visible { opacity: 1; pointer-events: auto; transform: none; }
+#cm-haut:hover { background: rgba(0, 255, 65, 0.12); text-shadow: 0 0 8px #00FF41; }
+@media (max-width: 760px) { #cm-voile { top: 104px; } #cm-sous-menu { display: none; } }
 #cm-menu { position: fixed; left: 10px; top: 50%; transform: translateY(-50%); z-index: 999992; display: flex; flex-direction: column; gap: 6px;
   font-family: 'Matrix Sans Video', monospace; font-size: 19px; letter-spacing: 0.12em; opacity: 0; transition: opacity 0.6s; pointer-events: none; }
 #cm-menu.visible { opacity: 1; pointer-events: auto; }
@@ -122,7 +137,7 @@ body.cm-cuillere .stApp { filter: url(#cm-tordre); }
 @media (max-width: 1100px) { #cm-menu { display: none; } }
 
 /* Chargement maison */
-.stApp[data-test-script-state="running"]::after { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓░░░░"; position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+.stApp[data-test-script-state="running"]::after { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓░░░░"; position: fixed; top: 128px; left: 50%; transform: translateX(-50%);
   z-index: 999992; font-family: 'Matrix Sans Video', monospace; font-size: 19px; letter-spacing: 0.15em; color: #00FF41; text-shadow: 0 0 8px #00FF41;
   background: rgba(0, 10, 3, 0.9); border: 1px solid rgba(0, 255, 65, 0.6); padding: 3px 14px; animation: cm-charge 0.9s steps(1) infinite; }
 @keyframes cm-charge { 33% { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓▓▓░░"; } 66% { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓▓▓▓▓"; } }
@@ -282,7 +297,8 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
       } else audio.volume = Math.max(0, Math.min(1, v));
     }, 60);
   }
-  function jouer() { audio.play().then(() => fondu(0.15)).catch(() => {}); }
+  let musiqueLancee = false;
+  function jouer() { musiqueLancee = true; audio.play().then(() => fondu(0.15)).catch(() => {}); }
 
   bouton.addEventListener('click', () => {
     coupe = !coupe;
@@ -293,6 +309,23 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
 
   // Le bouton n'apparaît que si une des deux musiques existe dans static
   audio.addEventListener('canplay', () => { bouton.style.display = 'block'; }, { once: true });
+  audio.addEventListener('loadedmetadata', () => { bouton.style.display = 'block'; }, { once: true });
+  audio.preload = 'auto';
+
+  // Safari (Mac, iPhone) ne laisse jouer la musique que si elle a été « débloquée » pendant un clic :
+  // au premier clic ou à la première touche, on la lance sans volume puis on la met en pause,
+  // et on réveille le moteur audio qui écoute les basses pour la pluie qui danse
+  let debloque = false;
+  function debloquer() {
+    if (debloque) return;
+    debloque = true;
+    try { brancherAnalyse(); if (ctxAnalyse && ctxAnalyse.state === 'suspended') ctxAnalyse.resume(); } catch (err) {}
+    if (audio.paused && !musiqueLancee) {
+      audio.play().then(() => { if (!musiqueLancee) audio.pause(); }).catch(() => {});
+    }
+  }
+  doc.addEventListener('pointerdown', debloquer, true);
+  doc.addEventListener('keydown', debloquer, true);
 
   // La musique démarre à la fin de l'intro (après le clic sur SE CONNECTER)
   (function attendre() {
@@ -329,34 +362,108 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
   });
   parent.cinemaniakTic = () => { tic(900, 0.05, 0.06); parent.setTimeout(() => tic(1500, 0.04, 0.04), 45); };
 
-  // ================== MENU DE NAVIGATION ==================
-  const menu = doc.createElement('nav');
-  menu.id = 'cm-menu';
+  // ================== NAVIGATION PAR ONGLETS ==================
   const sections = [['sec-tableau', 'SÉANCES'], ['sec-affiche', "À L'AFFICHE"], ['sec-salle9', 'SALLE 9'], ['sec-oracle', 'ORACLE'], ['sec-recherche', 'RECHERCHE'], ['sec-recos', 'RECOMMANDÉS'], ['sec-liste', 'MA LISTE'], ['sec-matrice', 'MATRICE'], ['sec-duel', 'DUEL'], ['sec-jeu', 'DÉCRYPTAGE'], ['sec-terminal', 'TERMINAL'], ['sec-machines', 'MACHINES']];
-  menu.innerHTML = sections.map(([id, nom], i) => `<a href="#" data-cible="${id}">[${String(i + 1).padStart(2, '0')}]<span>${nom}</span></a>`).join('');
-  doc.body.appendChild(menu);
-  menu.addEventListener('click', (e) => {
+  // Ce que contient chaque onglet (pour les menus déroulants, comme sur les sites des grands cinémas)
+  const SOUS_MENUS = {
+    "À L'AFFICHE": [['sec-tableau', 'Séances du jour'], ['sec-affiche', 'Les 15 films de la semaine'], ['sec-salle9', 'Salle 9 · vote du public']],
+    'FILMS': [['sec-recherche', 'Rechercher un film'], ['sec-recos', 'Films recommandés'], ['sec-matrice', 'Carte de la Matrice']],
+    'DÉCOUVRIR': [['sec-oracle', "L'Oracle"], ['sec-duel', 'Le duel'], ['sec-jeu', 'Le décryptage']],
+    'COULISSES': [['sec-terminal', 'Le terminal'], ['sec-machines', 'La salle des machines']],
+  };
+  const ONGLET_DE = {};
+  Object.entries(SOUS_MENUS).forEach(([onglet, liste]) => liste.forEach(([id]) => { ONGLET_DE[id] = onglet; }));
+  ONGLET_DE['sec-liste'] = '★ MA LISTE';
+  const boutonOnglet = (nom) => [...doc.querySelectorAll('.st-key-onglet button')].find(b => b.textContent.trim() === nom);
+
+  // Fondu au noir pendant le changement d'onglet : on cache la page le temps que Streamlit la reconstruise
+  const voile = doc.createElement('div'); voile.id = 'cm-voile'; doc.body.appendChild(voile);
+  let finVoile = null;
+  function transition() {
+    parent.clearTimeout(finVoile);
+    voile.classList.add('actif');
+    const debut = Date.now(); let aTourne = false;
+    (function attendre() {
+      const etat = doc.querySelector('.stApp') && doc.querySelector('.stApp').getAttribute('data-test-script-state');
+      if (etat === 'running') aTourne = true;
+      const fini = (aTourne && etat !== 'running') || (!aTourne && Date.now() - debut > 900) || Date.now() - debut > 4000;
+      if (!fini) { parent.setTimeout(attendre, 60); return; }
+      // on laisse les cadres finir de s'afficher, on remonte en haut, puis on rallume
+      finVoile = parent.setTimeout(() => { parent.scrollTo({ top: 0, behavior: 'auto' }); voile.classList.remove('actif'); }, 180);
+    })();
+  }
+  parent.cinemaniakTransition = transition;
+  doc.addEventListener('click', (e) => {
+    if (!e.target.closest) return;
+    // les onglets, et les boutons qui ouvrent un film depuis un autre onglet
+    if (e.target.closest('.st-key-onglet button, [class*="st-key-prog_"] button, [class*="st-key-prog9_"] button, [class*="st-key-liste_voir_"] button, .st-key-oracle_dossier button')) {
+      parent.scrollTo({ top: 0, behavior: 'auto' });
+      transition();
+    }
+  }, true);
+
+  // Aller à une section : on ouvre son onglet si besoin, puis on descend jusqu'à elle
+  function aller(id) {
+    const defiler = (el) => el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    let el = doc.getElementById(id);
+    if (el) { defiler(el); return; }
+    const onglet = boutonOnglet(ONGLET_DE[id]);
+    if (onglet) { transition(); onglet.click(); }
+    let essais = 0;
+    const attendre = parent.setInterval(() => {
+      el = doc.getElementById(id);
+      if (el || ++essais > 50) { parent.clearInterval(attendre); if (el) parent.setTimeout(() => defiler(el), 450); }
+    }, 150);
+  }
+  parent.cinemaniakAller = aller;
+
+  // Menus déroulants sous les onglets
+  const sousMenu = doc.createElement('div'); sousMenu.id = 'cm-sous-menu'; doc.body.appendChild(sousMenu);
+  let fermeture = null, ongletOuvert = null;
+  function ouvrirSousMenu(bouton) {
+    const nom = bouton.textContent.trim(), liste = SOUS_MENUS[nom];
+    parent.clearTimeout(fermeture);
+    if (!liste) { sousMenu.classList.remove('ouvert'); ongletOuvert = null; return; }
+    if (ongletOuvert !== nom) {
+      sousMenu.innerHTML = liste.map(([id, texte]) => `<a href="#" data-cible="${id}">▸ ${texte}</a>`).join('');
+      ongletOuvert = nom;
+    }
+    const r = bouton.getBoundingClientRect();
+    sousMenu.style.left = Math.max(8, r.left) + 'px'; sousMenu.style.top = r.bottom + 'px';
+    sousMenu.classList.add('ouvert');
+  }
+  function fermerBientot() { parent.clearTimeout(fermeture); fermeture = parent.setTimeout(() => { sousMenu.classList.remove('ouvert'); ongletOuvert = null; }, 220); }
+  doc.addEventListener('mouseover', (e) => {
+    if (!e.target.closest) return;
+    const bouton = e.target.closest('.st-key-onglet button');
+    if (bouton) ouvrirSousMenu(bouton);
+    else if (e.target.closest('#cm-sous-menu')) parent.clearTimeout(fermeture);
+    else if (sousMenu.classList.contains('ouvert')) fermerBientot();
+  });
+  sousMenu.addEventListener('click', (e) => {
     const lien = e.target.closest('a'); if (!lien) return;
     e.preventDefault();
-    const cible = doc.getElementById(lien.dataset.cible);
-    if (cible) cible.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    force = lien.dataset.cible;
+    sousMenu.classList.remove('ouvert'); ongletOuvert = null;
+    aller(lien.dataset.cible);
   });
-  // La section cliquée reste allumée jusqu'à ce que la personne fasse défiler la page elle-même
-  let force = null;
-  ['wheel', 'touchmove'].forEach(ev => doc.addEventListener(ev, () => { force = null; }, { passive: true }));
-  doc.addEventListener('keydown', (e) => { if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) force = null; });
-  parent.setInterval(() => {
-    menu.classList.toggle('visible', !!parent.__introDebut && Date.now() - parent.__introDebut > 6500);
-    let actif = null;
-    // Tout en bas de la page, les dernières sections ne peuvent pas remonter assez haut : on prend la dernière visible
-    const pied = doc.querySelector('.pied');
-    const enBas = pied && pied.getBoundingClientRect().bottom <= parent.innerHeight + 40;
-    const limite = enBas ? parent.innerHeight * 0.85 : parent.innerHeight * 0.4;
-    sections.forEach(([id]) => { const el = doc.getElementById(id); if (el && el.getBoundingClientRect().top < limite) actif = id; });
-    if (force && doc.getElementById(force)) actif = force;
-    menu.querySelectorAll('a').forEach(a => a.classList.toggle('actif', a.dataset.cible === actif));
-  }, 300);
+
+  // Bouton pour remonter en haut de la page
+  const haut = doc.createElement('button'); haut.id = 'cm-haut'; haut.textContent = '▲ HAUT'; doc.body.appendChild(haut);
+  haut.addEventListener('click', () => parent.scrollTo({ top: 0, behavior: 'smooth' }));
+  parent.addEventListener('scroll', () => { haut.classList.toggle('visible', parent.scrollY > 900); }, { passive: true });
+
+  // Touche « / » : on va directement à la recherche de film (comme sur YouTube)
+  doc.addEventListener('keydown', (e) => {
+    const champ = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
+    if (champ || e.key !== '/') return;
+    e.preventDefault();
+    aller('sec-recherche');
+    let essais = 0;
+    const viser = parent.setInterval(() => {
+      const input = doc.querySelector('.st-key-choix input');
+      if (input || ++essais > 40) { parent.clearInterval(viser); if (input) parent.setTimeout(() => input.focus(), 500); }
+    }, 150);
+  });
 
   // ================== AGENT SMITH ==================
   let dernierMouvement = Date.now(), agent = null;
@@ -720,12 +827,13 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
 
   // ================== LA PLUIE QUI DANSE ==================
   // On écoute la musique en direct : les basses font accélérer et briller la pluie
-  let analyse = null, donneesSon = null;
+  let analyse = null, donneesSon = null, ctxAnalyse = null;
   parent.__cmRythme = 0;
   function brancherAnalyse() {
     if (analyse) return;
     try {
       const ac = new (parent.AudioContext || parent.webkitAudioContext)();
+      ctxAnalyse = ac;
       const source = ac.createMediaElementSource(audio);
       analyse = ac.createAnalyser(); analyse.fftSize = 256; analyse.smoothingTimeConstant = 0.6;
       source.connect(analyse); analyse.connect(ac.destination);
@@ -938,7 +1046,7 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
     let arret = false;
     const stop = (e) => { if (e.key === 'Escape') arret = true; };
     doc.addEventListener('keydown', stop);
-    const aller = (id) => { const el = doc.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    const aller = parent.cinemaniakAller;
     const cliquer = (sel) => { const b = doc.querySelector(sel); if (b) b.click(); };
     const etapes = [
       [0, '▶ VISITE GUIDÉE DU CINÉMANIAK', () => parent.scrollTo({ top: 0 })],
@@ -946,7 +1054,7 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
       [6000, '2/9 · LES 15 FILMS DE LA SEMAINE', () => aller('sec-affiche')],
       [9500, '3/9 · LA SALLE 9, CHOISIE PAR LE PUBLIC', () => aller('sec-salle9')],
       [13000, '4/9 · L\'ORACLE RECOMMANDE UN FILM', () => { aller('sec-oracle'); parent.setTimeout(() => cliquer('.st-key-consulter_oracle button'), 1500); }],
-      [18000, '5/9 · LA PILULE BLEUE TIRE UN CLASSIQUE', () => { parent.scrollTo({ top: 0, behavior: 'smooth' }); parent.setTimeout(() => cliquer('.st-key-pilule_bleue button'), 1500); }],
+      [18000, '5/9 · LA PILULE BLEUE TIRE UN CLASSIQUE', () => { aller('sec-recherche'); parent.setTimeout(() => cliquer('.st-key-pilule_bleue button'), 1800); }],
       [23500, '6/9 · LE DOSSIER DU FILM ET SES SÉANCES', () => aller('sec-recherche')],
       [29000, '7/9 · LES FILMS COMPATIBLES', () => aller('sec-recos')],
       [33000, '8/9 · LA CARTE DE LA MATRICE', () => aller('sec-matrice')],

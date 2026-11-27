@@ -334,3 +334,54 @@ html, body, .stApp, .stApp * { cursor: url("data:image/svg+xml;utf8,<svg xmlns='
 .liste-section span { color: #ffcc33 !important; text-shadow: 0 0 10px #ff9900 !important; }
 .carte.favori { border-color: rgba(255, 204, 51, 0.5); }
 .carte.favori .carte-signal { color: #ffcc33; text-shadow: 0 0 8px #ff9900; }
+
+/* ================== BARRE D'ONGLETS (navigation en haut, façon site de cinéma) ================== */
+.st-key-onglet { position: fixed !important; top: 66px; left: 0; right: 0; width: 100vw !important; max-width: none !important; z-index: 999990; display: flex; justify-content: center;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.97), rgba(0, 10, 3, 0.95)); border-top: 1px solid rgba(0, 255, 65, 0.18);
+  border-bottom: 1px solid rgba(0, 255, 65, 0.55); box-shadow: 0 6px 24px rgba(0, 255, 65, 0.12); padding: 0 12px; }
+.st-key-onglet::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 66px; background: rgba(0, 0, 0, 0.92); z-index: -1; pointer-events: none; }
+.st-key-onglet [data-testid="stButtonGroup"] { width: 100%; }
+.st-key-onglet [role="radiogroup"] { display: flex; justify-content: flex-start; padding-left: 250px; gap: 4px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; border: none !important; background: transparent !important; }
+.st-key-onglet button { background: transparent !important; border: none !important; border-bottom: 2px solid transparent !important; border-radius: 0 !important;
+  color: #7CFC9A !important; padding: 12px 22px !important; min-height: 0 !important; box-shadow: none !important; transition: color 0.2s, border-color 0.2s, background 0.2s; }
+.st-key-onglet button p { font-family: 'Matrix Sans Video', monospace !important; font-size: 1.05rem !important; letter-spacing: 0.22em; white-space: nowrap; color: inherit !important; }
+.st-key-onglet button:hover { color: #00FF41 !important; background: rgba(0, 255, 65, 0.05) !important; border-bottom-color: rgba(0, 255, 65, 0.5) !important; }
+.st-key-onglet button[aria-checked="true"] {
+  color: #00FF41 !important; border-bottom-color: #00FF41 !important; background: rgba(0, 255, 65, 0.08) !important; text-shadow: 0 0 10px #00FF41; }
+.st-key-onglet button:last-child { color: #ffcc33 !important; }
+.st-key-onglet button:last-child[aria-checked="true"] { border-bottom-color: #ffcc33 !important; background: rgba(255, 204, 51, 0.08) !important; text-shadow: 0 0 10px #ff9900; }
+.block-container { padding-top: 140px !important; }
+#cm-menu { display: none !important; }
+@media (max-width: 760px) {
+  .st-key-onglet { top: 58px; justify-content: flex-start; }
+  .st-key-onglet::before { height: 58px; }
+  .st-key-onglet button { padding: 10px 12px !important; }
+  .st-key-onglet button p { font-size: 0.85rem !important; letter-spacing: 0.12em; }
+  .block-container { padding-top: 124px !important; }
+}
+
+/* Le nom du cinéma à gauche de la barre, comme un logo */
+.st-key-onglet::after { content: "▣ CINÉMANIAK"; position: absolute; left: 28px; top: 50%; transform: translateY(-50%); pointer-events: none;
+  font-family: 'Matrix Sans Video', monospace; font-size: 1.3rem; letter-spacing: 0.3em; color: #00FF41; text-shadow: 0 0 12px #00FF41; }
+@media (max-width: 1000px) { .st-key-onglet::after { display: none; } .st-key-onglet [role="radiogroup"] { padding-left: 0; } }
+
+/* Pas de « saut » de la page quand le contenu change au-dessus (la page ne colle plus à la Salle 9) */
+html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] { overflow-anchor: none; }
+
+/* ================== RECHERCHE DE FILM, bien visible ================== */
+.recherche-titre { margin-top: 8px !important; font-size: 1.9rem !important; }
+.recherche-etapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 4px 0 18px; }
+.recherche-etapes div { padding: 12px 16px; border: 1px solid rgba(0, 255, 65, 0.3); background: rgba(0, 20, 6, 0.6); color: #C8FFD4; font-size: 1rem; line-height: 1.5; }
+.recherche-etapes b { display: inline-block; width: 30px; height: 30px; margin-right: 10px; line-height: 30px; text-align: center; color: #000; background: #00FF41;
+  box-shadow: 0 0 10px #00FF41; font-family: 'Matrix Sans Video', monospace; }
+.recherche-etapes i { color: #4fbf6a; font-size: 0.85rem; font-style: normal; }
+.st-key-choix label p { font-size: 1.05rem !important; letter-spacing: 0.15em; color: #00FF41 !important; text-shadow: 0 0 8px rgba(0, 255, 65, 0.6); }
+.st-key-choix [role="group"] { min-height: 60px; font-size: 1.25rem; border: 1px solid #00FF41 !important; background: rgba(0, 12, 4, 0.95) !important;
+  box-shadow: 0 0 22px rgba(0, 255, 65, 0.25), inset 0 0 16px rgba(0, 255, 65, 0.08); }
+.st-key-choix [role="group"]:focus-within { box-shadow: 0 0 30px rgba(0, 255, 65, 0.5), inset 0 0 16px rgba(0, 255, 65, 0.12); }
+@media (max-width: 760px) { .recherche-etapes { grid-template-columns: 1fr; } .recherche-titre { font-size: 1.3rem !important; } }
+
+.st-key-choix input { font-size: 1.2rem !important; color: #E8FFE8 !important; }
+
+/* Les sections ne passent plus sous la barre d onglets quand on y va */
+[id^="sec-"] { scroll-margin-top: 130px; }
