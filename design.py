@@ -428,7 +428,7 @@ def tableau_seances(lignes):
         unsafe_allow_html=True,
     )
     html = (DOSSIER / "tableau.html").read_text(encoding="utf-8")
-    components.html(html.replace("DONNEES_TABLEAU", json.dumps(lignes)), height=48 + 36 * len(lignes) + 70)
+    components.html(html.replace("DONNEES_TABLEAU", json.dumps(lignes)), height=48 + 36 * len(lignes) + 96)
 
 
 def decryptage(manches, nouvelle_partie):
@@ -488,3 +488,13 @@ def ma_liste(liste, films, choisir, retirer):
 def bouton_liste(dans_liste, basculer):
     texte = "★ DANS MA LISTE · RETIRER" if dans_liste else "☆ AJOUTER À MA LISTE"
     st.button(texte, key="bouton_liste", on_click=basculer)
+
+
+def mes_billets():
+    # La page est remplie par le script des effets avec les séances réservées
+    st.markdown(
+        '<div class="recos-titre" id="sec-billets">&gt; MES BILLETS · <span>TES SÉANCES RÉSERVÉES</span></div>'
+        '<div class="matrice-aide">Pour réserver : ouvre un film à l\'affiche, clique sur une heure puis choisis ta place.</div>'
+        '<div id="cm-billets-page" class="billets-page"><div class="billets-vide">&gt; Chargement de tes billets…</div></div>',
+        unsafe_allow_html=True,
+    )

@@ -7,7 +7,7 @@ from design import (
     appliquer_style, intro_hacker, effets_globaux, ecran_ouverture, pilules,
     fiche_film, cartes_recommandations, explorer_matrice, pied_de_page,
     a_l_affiche, salle_neuf, oracle, duel, salle_des_machines,
-    tableau_seances, decryptage, terminal, ma_liste, bouton_liste,
+    tableau_seances, decryptage, terminal, ma_liste, bouton_liste, mes_billets,
 )
 import html
 from pathlib import Path
@@ -85,7 +85,7 @@ def recommander(films, film, nombre=6):
     return voisins[voisins["tconst"] != film["tconst"]].head(nombre)
 
 
-ONGLETS = ["À L'AFFICHE", "FILMS", "DÉCOUVRIR", "COULISSES", "★ MA LISTE"]
+ONGLETS = ["À L'AFFICHE", "FILMS", "DÉCOUVRIR", "COULISSES", "★ MA LISTE", "🎟 MES BILLETS"]
 
 
 def choisir(tconst):
@@ -196,10 +196,10 @@ def lignes_tableau():
             statut = "COMPLET"
         else:
             statut = "À L'HEURE"
-        lignes.append({"salle": f"{salle:02d}", "film": f["primaryTitle"], "heure": heure, "statut": statut})
+        lignes.append({"salle": f"{salle:02d}", "film": f["primaryTitle"], "heure": heure, "statut": statut, "tconst": f["tconst"]})
     elu, statut_elu = film_salle_neuf()
     if elu is not None:
-        lignes.append({"salle": "09", "film": elu["primaryTitle"], "heure": "21:00", "statut": "ÉLU · JEUDI" if statut_elu == "★ ÉLU" else "EN TÊTE"})
+        lignes.append({"salle": "09", "film": elu["primaryTitle"], "heure": "21:00", "statut": "ÉLU · JEUDI" if statut_elu == "★ ÉLU" else "EN TÊTE", "tconst": elu["tconst"]})
     else:
         lignes.append({"salle": "09", "film": "FILM ÉLU PAR LE PUBLIC", "heure": "21:00", "statut": "VOTE OUVERT"})
     return lignes
@@ -457,8 +457,12 @@ elif onglet == "COULISSES":
     terminal(st.session_state.get("historique", []), executer)
     salle_des_machines(films)
 
-else:
+elif onglet == "★ MA LISTE":
     ma_liste(st.session_state.get("liste", []), films, choisir, retirer_liste)
+
+else:
+    # Les billets réservés (gardés dans le navigateur du visiteur)
+    mes_billets()
 
 pied_de_page(len(films))
 fenetre_connexion()

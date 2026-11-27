@@ -273,7 +273,7 @@ if (statut === 'affiche') {
     $('jours').appendChild(bloc);
     bloc.querySelectorAll('.heure').forEach(btn => btn.addEventListener('click', () => {
       // On ouvre le plan de la salle pour choisir sa place
-      const seance = { titre: FILM.titre, jour: nom, heure: btn.textContent, salle: FILM.salle, affiche: FILM.affiche,
+      const seance = { titre: FILM.titre, tconst: FILM.tconst, jour: nom, heure: btn.textContent, salle: FILM.salle, affiche: FILM.affiche,
                        ref: 'CM-' + String(Math.floor(100000 + Math.random() * 899999)) };
       try {
         window.parent.cinemaniakPlan(seance, (billet) => {

@@ -17,7 +17,7 @@
 #cm-soustitre.visible { opacity: 1; }
 
 /* Visite guidée */
-#cm-demo { position: fixed; top: 128px; left: 50%; transform: translateX(-50%); z-index: 999998; pointer-events: none; padding: 8px 22px; font-family: 'Matrix Sans Video', monospace;
+#cm-demo { position: fixed; top: 142px; left: 50%; transform: translateX(-50%); z-index: 999998; pointer-events: none; padding: 8px 22px; font-family: 'Matrix Sans Video', monospace;
   font-size: 21px; letter-spacing: 0.12em; color: #000; background: #00FF41; box-shadow: 0 0 30px #00FF41; }
 
 /* Générique */
@@ -58,9 +58,33 @@
 #cm-plan button:hover { background: #00FF41; color: #000; }
 #cm-plan button:disabled { opacity: 0.35; cursor: not-allowed; }
 
+
+/* Logo du cinéma (étage 1 de l en-tête) */
+#cm-logo { position: fixed; top: 0; left: 28px; height: 64px; z-index: 999993; display: flex; align-items: center; gap: 14px; cursor: pointer; background: none; border: none; padding: 0;
+  font-family: 'Matrix Sans Video', monospace; color: #00FF41; text-align: left; }
+#cm-logo .nom { font-size: 34px; letter-spacing: 0.32em; text-shadow: 0 0 14px #00FF41, 0 0 30px rgba(0, 255, 65, 0.45); }
+#cm-logo .lieu { font-size: 13px; letter-spacing: 0.35em; color: #4fbf6a; border-left: 1px solid rgba(0, 255, 65, 0.4); padding-left: 14px; line-height: 1.5; }
+#cm-logo:hover .nom { color: #E8FFE8; }
+/* Menu des réglages */
+#cm-sons button.reglages.ouvert { background: #00FF41; color: #000; }
+#cm-reglages { position: fixed; top: 70px; right: 24px; z-index: 999996; width: 330px; padding: 10px 0; background: rgba(0, 8, 2, 0.98); border: 1px solid #00FF41; border-top: 3px solid #00FF41;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 255, 65, 0.25); font-family: 'Matrix Sans Video', monospace; display: none; }
+#cm-reglages.ouvert { display: block; animation: cm-apparait 0.2s; }
+#cm-reglages h4 { margin: 2px 18px 8px; font-weight: 400; font-size: 15px; letter-spacing: 0.3em; color: #4fbf6a; }
+#cm-reglages button { display: flex !important; flex-wrap: nowrap; white-space: nowrap; width: 100%; justify-content: space-between; align-items: center; gap: 12px; font-family: inherit; font-size: 19px; letter-spacing: 0.14em;
+  color: #7CFC9A; background: transparent; border: none; border-top: 1px dashed rgba(0, 255, 65, 0.15); padding: 12px 18px; cursor: pointer; text-align: left; }
+#cm-reglages button:hover { background: rgba(0, 255, 65, 0.08); color: #00FF41; }
+#cm-reglages button b { font-weight: 400; min-width: 70px; text-align: center; padding: 2px 8px; border: 1px solid #00FF41; color: #E8FFE8; text-shadow: 0 0 8px #00FF41; }
+#cm-reglages button.off b { border-color: #ff3b3b; color: #ff3b3b; text-shadow: 0 0 8px #ff3b3b; }
+#cm-reglages button.reel b { min-width: 110px; }
+#cm-reglages button.reel.actif b { border-color: #6fa8ff; color: #9ec9ff; text-shadow: 0 0 8px #3c8cff; }
+#cm-reglages small { display: block; margin: 8px 18px 2px; color: #4f8a5c; font-size: 12px; letter-spacing: 0.15em; }
+@media (max-width: 1000px) { #cm-logo .lieu { display: none; } #cm-logo .nom { font-size: 26px; } }
+@media (max-width: 760px) { #cm-logo { left: 12px; height: 52px; } #cm-logo .nom { font-size: 19px; letter-spacing: 0.18em; } #cm-reglages { top: 56px; right: 8px; width: 300px; } #cm-reglages button { font-size: 15px; letter-spacing: 0.06em; padding: 10px 14px; white-space: nowrap; } #cm-reglages button b { min-width: 0 !important; } }
+
 /* Agenda */
 #cm-sons button.agenda b { color: #E8FFE8; }
-#cm-agenda { position: fixed; top: 60px; right: 18px; z-index: 999996; width: 380px; max-height: 70vh; overflow: auto; padding: 14px 16px; background: rgba(0, 8, 2, 0.97);
+#cm-agenda { position: fixed; top: 70px; right: 18px; z-index: 999996; width: 380px; max-height: 70vh; overflow: auto; padding: 14px 16px; background: rgba(0, 8, 2, 0.97);
   border: 1px solid #00FF41; box-shadow: 0 0 30px rgba(0, 255, 65, 0.3); font-family: 'Matrix Sans Video', monospace; color: #C8FFD4; display: none; }
 #cm-agenda.ouvert { display: block; animation: cm-apparait 0.25s; }
 #cm-agenda h4 { margin: 0 0 10px; font-weight: 400; font-size: 20px; letter-spacing: 0.25em; color: #00FF41; }
@@ -80,7 +104,7 @@
 .cm-toast small { display: block; font-size: 16px; color: #d9c48a; }
 @keyframes cm-toast { from { transform: translateX(120%); } }
 @keyframes cm-toast-fin { to { opacity: 0; transform: translateX(30px); } }
-#cm-trophees { position: fixed; top: 60px; right: 18px; z-index: 999996; width: 340px; max-height: 70vh; overflow: auto; padding: 14px 16px; background: rgba(5, 4, 0, 0.97);
+#cm-trophees { position: fixed; top: 70px; right: 18px; z-index: 999996; width: 340px; max-height: 70vh; overflow: auto; padding: 14px 16px; background: rgba(5, 4, 0, 0.97);
   border: 1px solid #ffcc33; box-shadow: 0 0 30px rgba(255, 190, 40, 0.35); font-family: 'Matrix Sans Video', monospace; color: #ffe7a3; display: none; }
 #cm-trophees.ouvert { display: block; animation: cm-apparait 0.25s; }
 #cm-trophees h4 { margin: 0 0 10px; font-weight: 400; font-size: 22px; letter-spacing: 0.25em; color: #ffcc33; }
@@ -110,7 +134,7 @@ body.cm-cuillere .stApp { filter: url(#cm-tordre); }
 #cm-cuillere-msg small { display: block; font-size: 0.4em; color: #7CFC9A; letter-spacing: 0.3em; }
 
 /* Menu de navigation */
-#cm-voile { position: fixed; left: 0; right: 0; top: 116px; bottom: 0; z-index: 999985; pointer-events: none; opacity: 0; transition: opacity 0.18s ease;
+#cm-voile { position: fixed; left: 0; right: 0; top: 124px; bottom: 0; z-index: 999985; pointer-events: none; opacity: 0; transition: opacity 0.18s ease;
   background: radial-gradient(circle at 50% 30%, rgba(0, 22, 6, 0.96), rgba(0, 0, 0, 0.98) 70%); }
 #cm-voile.actif { opacity: 1; transition: opacity 0.12s ease; }
 #cm-sous-menu { position: fixed; z-index: 999991; min-width: 260px; display: flex; flex-direction: column; padding: 8px 0; background: rgba(0, 10, 3, 0.97);
@@ -124,7 +148,7 @@ body.cm-cuillere .stApp { filter: url(#cm-tordre); }
   opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity 0.2s, transform 0.2s; }
 #cm-haut.visible { opacity: 1; pointer-events: auto; transform: none; }
 #cm-haut:hover { background: rgba(0, 255, 65, 0.12); text-shadow: 0 0 8px #00FF41; }
-@media (max-width: 760px) { #cm-voile { top: 104px; } #cm-sous-menu { display: none; } }
+@media (max-width: 760px) { #cm-voile { top: 96px; } #cm-sous-menu { display: none; } }
 #cm-menu { position: fixed; left: 10px; top: 50%; transform: translateY(-50%); z-index: 999992; display: flex; flex-direction: column; gap: 6px;
   font-family: 'Matrix Sans Video', monospace; font-size: 19px; letter-spacing: 0.12em; opacity: 0; transition: opacity 0.6s; pointer-events: none; }
 #cm-menu.visible { opacity: 1; pointer-events: auto; }
@@ -137,7 +161,7 @@ body.cm-cuillere .stApp { filter: url(#cm-tordre); }
 @media (max-width: 1100px) { #cm-menu { display: none; } }
 
 /* Chargement maison */
-.stApp[data-test-script-state="running"]::after { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓░░░░"; position: fixed; top: 128px; left: 50%; transform: translateX(-50%);
+.stApp[data-test-script-state="running"]::after { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓░░░░"; position: fixed; top: 142px; left: 50%; transform: translateX(-50%);
   z-index: 999992; font-family: 'Matrix Sans Video', monospace; font-size: 19px; letter-spacing: 0.15em; color: #00FF41; text-shadow: 0 0 8px #00FF41;
   background: rgba(0, 10, 3, 0.9); border: 1px solid rgba(0, 255, 65, 0.6); padding: 3px 14px; animation: cm-charge 0.9s steps(1) infinite; }
 @keyframes cm-charge { 33% { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓▓▓░░"; } 66% { content: "> CHARGEMENT DE LA MATRICE ▓▓▓▓▓▓▓▓▓"; } }
@@ -194,7 +218,7 @@ body.cm-off .stApp { animation: cm-tv 0.9s ease-in forwards; }
 #cm-billet button { font-family: 'Matrix Sans Video', monospace; font-size: 22px; letter-spacing: 0.2em; color: #00FF41; background: #000a02; border: 1px solid #00FF41; padding: 6px 20px; }
 #cm-billet button:hover { background: #00FF41; color: #000; }
 
-#cm-sons { position: fixed; top: 14px; right: 18px; z-index: 999993; display: flex; gap: 8px; }
+#cm-sons { position: fixed; top: 0; right: 24px; height: 64px; z-index: 999993; display: flex; align-items: center; gap: 10px; }
 #cm-sons button { position: static; z-index: 999993; font-family: 'Matrix Sans Video', monospace; font-size: 20px; letter-spacing: 0.2em;
   color: #00FF41; background: rgba(0, 10, 3, 0.85); border: 1px solid #00FF41; padding: 4px 14px; box-shadow: 0 0 14px rgba(0, 255, 65, 0.45); transition: all 0.2s; }
 #cm-sons button b { font-weight: 400; color: #E8FFE8; text-shadow: 0 0 8px #00FF41; }
@@ -374,7 +398,10 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
   const ONGLET_DE = {};
   Object.entries(SOUS_MENUS).forEach(([onglet, liste]) => liste.forEach(([id]) => { ONGLET_DE[id] = onglet; }));
   ONGLET_DE['sec-liste'] = '★ MA LISTE';
-  const boutonOnglet = (nom) => [...doc.querySelectorAll('.st-key-onglet button')].find(b => b.textContent.trim() === nom);
+  ONGLET_DE['sec-billets'] = '🎟 MES BILLETS';
+  // on compare sans les emojis (le navigateur peut les écrire un peu différemment)
+  const sansEmoji = (t) => t.replace(/[^A-ZÀ-Ü' ]/gi, '').trim();
+  const boutonOnglet = (nom) => [...doc.querySelectorAll('.st-key-onglet button')].find(b => sansEmoji(b.textContent) === sansEmoji(nom));
 
   // Fondu au noir pendant le changement d'onglet : on cache la page le temps que Streamlit la reconstruise
   const voile = doc.createElement('div'); voile.id = 'cm-voile'; doc.body.appendChild(voile);
@@ -749,7 +776,7 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
   barreSons.insertBefore(boutonTrophees, barreSons.firstChild);
   const panneau = doc.createElement('div'); panneau.id = 'cm-trophees'; doc.body.appendChild(panneau);
   function majTrophees() {
-    boutonTrophees.innerHTML = '🏆 <b>' + obtenus.length + '/' + Object.keys(TROPHEES).length + '</b>';
+    boutonTrophees.innerHTML = '🏆 <span class="mot">SUCCÈS</span> <b>' + obtenus.length + '/' + Object.keys(TROPHEES).length + '</b>';
     panneau.innerHTML = '<h4>&gt; SUCCÈS</h4>' + Object.entries(TROPHEES).map(([cle, [icone, nom, texte]]) => {
       const ok = obtenus.includes(cle);
       return `<div class="t ${ok ? '' : 'verrou'}"><span>${ok ? icone : '🔒'}</span><div>${ok ? nom : '???'}<small>${texte}</small></div></div>`;
@@ -808,7 +835,7 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
   const boutonReel = doc.createElement('button'); boutonReel.className = 'reel';
   barreSons.insertBefore(boutonReel, barreSons.firstChild);
   let reel = false;
-  function majReel() { boutonReel.innerHTML = reel ? '🌍 <b>RÉEL</b>' : '🟢 <b>MATRICE</b>'; boutonReel.classList.toggle('actif', reel); }
+  function majReel() { boutonReel.innerHTML = '🎨 AMBIANCE ' + (reel ? '<b>🌍 RÉEL</b>' : '<b>🟢 MATRICE</b>'); boutonReel.classList.toggle('actif', reel); }
   majReel();
   boutonReel.addEventListener('click', () => {
     reel = !reel;
@@ -1231,5 +1258,119 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
     }, 7000);
     ecran.addEventListener('click', () => ecran.classList.add('fin'));
   }
+
+  // ================== EN-TÊTE : LOGO, RECHERCHE, RÉGLAGES, BILLETS ==================
+  // Le logo ramène à l'accueil, comme sur tous les sites de cinéma
+  const logo = doc.createElement('button'); logo.id = 'cm-logo';
+  logo.innerHTML = '<span class="nom">▣ CINÉMANIAK</span><span class="lieu">CINÉMA<br>ANGERS</span>';
+  doc.body.appendChild(logo);
+  logo.addEventListener('click', () => {
+    const accueil = boutonOnglet("À L'AFFICHE");
+    if (accueil && accueil.getAttribute('aria-checked') !== 'true') { transition(); accueil.click(); }
+    else parent.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Bouton recherche toujours visible (ouvre FILMS et place le curseur dans la recherche)
+  const boutonRecherche = doc.createElement('button'); boutonRecherche.className = 'recherche';
+  boutonRecherche.innerHTML = '🔍 <span class="mot">RECHERCHER</span>';
+  function allerRecherche() {
+    aller('sec-recherche');
+    let essais = 0;
+    const viser = parent.setInterval(() => {
+      const input = doc.querySelector('.st-key-choix input');
+      if (input || ++essais > 40) { parent.clearInterval(viser); if (input) parent.setTimeout(() => input.focus(), 500); }
+    }, 150);
+  }
+  boutonRecherche.addEventListener('click', allerRecherche);
+
+  // Menu des réglages : mode Matrice/Réel, sons et musique rangés au même endroit
+  const boutonReglages = doc.createElement('button'); boutonReglages.className = 'reglages';
+  boutonReglages.innerHTML = '⚙ <span class="mot">RÉGLAGES</span> ▾';
+  const menuReglages = doc.createElement('div'); menuReglages.id = 'cm-reglages';
+  menuReglages.innerHTML = '<h4>&gt; RÉGLAGES</h4>';
+  menuReglages.appendChild(boutonReel); menuReglages.appendChild(boutonSons); menuReglages.appendChild(bouton);
+  const aide = doc.createElement('small'); aide.textContent = 'TES CHOIX SONT GARDÉS POUR TA PROCHAINE VISITE'; menuReglages.appendChild(aide);
+  doc.body.appendChild(menuReglages);
+  function fermerPanneaux() { menuReglages.classList.remove('ouvert'); boutonReglages.classList.remove('ouvert'); panneau.classList.remove('ouvert'); panneauAgenda.classList.remove('ouvert'); }
+  boutonReglages.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const ouvrir = !menuReglages.classList.contains('ouvert');
+    fermerPanneaux();
+    menuReglages.classList.toggle('ouvert', ouvrir); boutonReglages.classList.toggle('ouvert', ouvrir);
+  });
+  boutonTrophees.addEventListener('click', () => { menuReglages.classList.remove('ouvert'); boutonReglages.classList.remove('ouvert'); });
+  // un clic ailleurs referme les menus
+  doc.addEventListener('click', (e) => {
+    if (!e.target.closest) return;
+    if (!e.target.closest('#cm-reglages, #cm-trophees, #cm-sons')) fermerPanneaux();
+  });
+  doc.addEventListener('keydown', (e) => { if (e.key === 'Escape') fermerPanneaux(); });
+  // un clic dans un cadre (fiche, tableau…) fait perdre le focus à la page : on referme aussi
+  parent.addEventListener('blur', fermerPanneaux);
+
+  // La barre du haut ne garde que : recherche, succès, réglages (l'agenda devient l'onglet MES BILLETS)
+  boutonAgenda.remove();
+  barreSons.innerHTML = '';
+  barreSons.appendChild(boutonRecherche); barreSons.appendChild(boutonTrophees); barreSons.appendChild(boutonReglages);
+
+  // ---- Page MES BILLETS ----
+  const echapper = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let versionBillets = 0;
+  function dessinerBillets() {
+    const page = doc.getElementById('cm-billets-page');
+    if (!page) return;
+    if (page.dataset.v === String(versionBillets) && page.querySelector('.billet-carte, .billets-vide button')) return;
+    page.dataset.v = String(versionBillets);
+    if (!reservations.length) {
+      page.innerHTML = '<div class="billets-vide">&gt; Tu n\'as encore aucun billet.<br>Choisis un film à l\'affiche, clique sur une heure et prends ta place.<br><br>' +
+        '<button data-action="affiche">▸ VOIR LES FILMS À L\'AFFICHE</button></div>';
+      return;
+    }
+    page.innerHTML = reservations.map((r, i) => `
+      <div class="billet-carte" style="animation-delay:${i * 0.06}s">
+        ${r.affiche ? `<img src="${echapper(r.affiche)}" alt="">` : '<div class="sans-affiche">🎬</div>'}
+        <div>
+          <div class="ref">${echapper(r.ref || '')}</div>
+          <h3>${echapper(r.titre)}</h3>
+          <div class="quand">${echapper(r.jour)} · ${echapper(r.heure)}</div>
+          <div class="infos"><div>SALLE<b>${echapper(r.salle)}</b></div><div>PLACE<b>${echapper(r.place)}</b></div></div>
+          <div class="actions"><button data-billet="${i}">🎟 VOIR LE BILLET</button><button class="annuler" data-annuler="${i}">✕ ANNULER</button></div>
+        </div>
+      </div>`).join('');
+  }
+  // Pastille sur l'onglet avec le nombre de billets
+  function pastille() {
+    const onglet = boutonOnglet('🎟 MES BILLETS');
+    if (!onglet) return;
+    if (reservations.length) onglet.setAttribute('data-n', String(reservations.length)); else onglet.removeAttribute('data-n');
+  }
+  const ancienneMajAgenda = majAgenda;
+  majAgenda = function () { ancienneMajAgenda(); versionBillets++; dessinerBillets(); pastille(); };
+  parent.setInterval(() => { dessinerBillets(); pastille(); }, 400);
+  doc.addEventListener('click', (e) => {
+    if (!e.target.closest) return;
+    const b = e.target.closest('#cm-billets-page button');
+    if (!b) return;
+    if (b.dataset.billet !== undefined) parent.cinemaniakBillet(reservations[Number(b.dataset.billet)]);
+    if (b.dataset.annuler !== undefined) { reservations.splice(Number(b.dataset.annuler), 1); sauverAgenda(); }
+    if (b.dataset.action === 'affiche') aller('sec-affiche');
+  });
+
+  // ---- Cliquer sur une affiche ouvre le dossier du film (comme sur les sites des cinémas) ----
+  doc.addEventListener('click', (e) => {
+    if (!e.target.closest) return;
+    const carte = e.target.closest('.st-key-programme .carte, .st-key-recos .carte, .st-key-liste .carte');
+    if (!carte) return;
+    const colonne = carte.closest('[data-testid="stColumn"]');
+    const cible = colonne && colonne.querySelector('[class*="st-key-prog_"] button, [class*="st-key-prog9_"] button, [class*="st-key-voir_"] button, [class*="st-key-liste_voir_"] button');
+    if (cible) cible.click();
+  });
+
+  // Le tableau des séances (dans son cadre) demande d'ouvrir un film
+  parent.cinemaniakOuvrirFilm = (tconst) => {
+    const cible = doc.querySelector(`.st-key-prog_${tconst} button, .st-key-prog9_${tconst} button`);
+    if (cible) { cible.click(); return true; }
+    return false;
+  };
 })();
 </script>
