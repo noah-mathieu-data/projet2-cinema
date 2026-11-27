@@ -342,12 +342,12 @@ html, body, .stApp, .stApp * { cursor: url("data:image/svg+xml;utf8,<svg xmlns='
   background: linear-gradient(180deg, rgba(0, 12, 4, 0.98), rgba(0, 6, 2, 0.97)); border-top: 1px solid rgba(0, 255, 65, 0.22);
   border-bottom: 1px solid rgba(0, 255, 65, 0.6); box-shadow: 0 8px 26px rgba(0, 255, 65, 0.14); padding: 0 16px; }
 .st-key-onglet::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 64px; background: rgba(0, 0, 0, 0.96); z-index: -1; pointer-events: none; }
-.st-key-onglet [data-testid="stButtonGroup"] { width: 100%; max-width: 1700px; margin: 0 auto; }
+.st-key-onglet [data-testid="stButtonGroup"] { width: 100%; }
 .st-key-onglet [data-testid="stButtonGroup"] > div { width: 100% !important; max-width: none !important; }
 .st-key-onglet button div, .st-key-onglet button p { overflow: visible !important; text-overflow: clip !important; max-width: none !important; }
-.st-key-onglet [role="radiogroup"] { display: flex; justify-content: center; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; border: none !important; background: transparent !important; }
+.st-key-onglet [role="radiogroup"] { display: flex; justify-content: center; padding-left: 360px; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; border: none !important; background: transparent !important; }
 .st-key-onglet button { flex: 1 1 auto; background: transparent !important; border: none !important; border-bottom: 3px solid transparent !important; border-radius: 0 !important;
-  color: #7CFC9A !important; padding: 15px 10px 13px !important; min-height: 0 !important; box-shadow: none !important; transition: color 0.2s, border-color 0.2s, background 0.2s; position: relative; }
+  color: #7CFC9A !important; padding: 0 10px !important; height: 58px !important; min-height: 58px !important; align-items: center; box-shadow: none !important; transition: color 0.2s, border-color 0.2s, background 0.2s; position: relative; }
 .st-key-onglet button + button { box-shadow: -1px 0 0 rgba(0, 255, 65, 0.12) !important; }
 .st-key-onglet button p { font-family: 'Matrix Sans Video', monospace !important; font-size: 1.35rem !important; letter-spacing: 0.2em; white-space: nowrap; color: inherit !important; }
 .st-key-onglet button:hover { color: #00FF41 !important; background: rgba(0, 255, 65, 0.06) !important; border-bottom-color: rgba(0, 255, 65, 0.5) !important; }
@@ -359,14 +359,15 @@ html, body, .stApp, .stApp * { cursor: url("data:image/svg+xml;utf8,<svg xmlns='
 /* Pastille avec le nombre de billets sur l onglet */
 .st-key-onglet button[data-n]::after { content: attr(data-n); position: static; display: inline-block; margin-left: 10px; flex: none; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px;
   background: #ffcc33; color: #000; font-family: 'Matrix Sans Video', monospace; font-size: 14px; line-height: 22px; text-align: center; box-shadow: 0 0 10px #ff9900; }
-.block-container { padding-top: 150px !important; }
+.block-container { padding-top: 160px !important; }
 #cm-menu { display: none !important; }
-@media (max-width: 1300px) { .st-key-onglet button p { font-size: 1.1rem !important; letter-spacing: 0.12em; } }
+@media (max-width: 1400px) { .st-key-onglet [role="radiogroup"] { padding-left: 280px; } .st-key-onglet button p { font-size: 1.05rem !important; letter-spacing: 0.12em; } }
+@media (max-width: 1000px) { .st-key-onglet [role="radiogroup"] { padding-left: 0; } }
 @media (max-width: 760px) {
   .st-key-onglet { top: 52px; padding: 0; }
   .st-key-onglet::before { height: 52px; }
-  .st-key-onglet [role="radiogroup"] { justify-content: flex-start; }
-  .st-key-onglet button { flex: none; padding: 11px 14px !important; }
+  .st-key-onglet [role="radiogroup"] { justify-content: flex-start; padding-left: 0; }
+  .st-key-onglet button { flex: none; padding: 0 14px !important; height: 46px !important; min-height: 46px !important; }
   .st-key-onglet button p { font-size: 0.9rem !important; letter-spacing: 0.1em; }
   .block-container { padding-top: 118px !important; }
 }

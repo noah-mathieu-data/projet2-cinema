@@ -59,12 +59,14 @@
 #cm-plan button:disabled { opacity: 0.35; cursor: not-allowed; }
 
 
-/* Logo du cinéma (étage 1 de l en-tête) */
-#cm-logo { position: fixed; top: 0; left: 28px; height: 64px; z-index: 999993; display: flex; align-items: center; gap: 14px; cursor: pointer; background: none; border: none; padding: 0;
-  font-family: 'Matrix Sans Video', monospace; color: #00FF41; text-align: left; }
-#cm-logo .nom { font-size: 34px; letter-spacing: 0.32em; text-shadow: 0 0 14px #00FF41, 0 0 30px rgba(0, 255, 65, 0.45); }
-#cm-logo .lieu { font-size: 13px; letter-spacing: 0.35em; color: #4fbf6a; border-left: 1px solid rgba(0, 255, 65, 0.4); padding-left: 14px; line-height: 1.5; }
+/* Logo du cinéma : à gauche des onglets, comme avant mais plus grand */
+#cm-logo { position: fixed; top: 64px; left: 26px; height: 58px; z-index: 999993; display: flex; align-items: center; cursor: pointer; background: none; border: none; padding: 0;
+  font-family: 'Matrix Sans Video', monospace; color: #00FF41; }
+#cm-logo .nom { font-size: 30px; letter-spacing: 0.3em; text-shadow: 0 0 14px #00FF41, 0 0 30px rgba(0, 255, 65, 0.45); white-space: nowrap; }
 #cm-logo:hover .nom { color: #E8FFE8; }
+/* Petite phrase d accueil sur l étage du haut */
+#cm-devise { position: fixed; top: 0; left: 28px; height: 64px; z-index: 999993; display: flex; align-items: center; pointer-events: none;
+  font-family: 'Matrix Sans Video', monospace; font-size: 14px; letter-spacing: 0.35em; color: #4fbf6a; }
 /* Menu des réglages */
 #cm-sons button.reglages.ouvert { background: #00FF41; color: #000; }
 #cm-reglages { position: fixed; top: 70px; right: 24px; z-index: 999996; width: 330px; padding: 10px 0; background: rgba(0, 8, 2, 0.98); border: 1px solid #00FF41; border-top: 3px solid #00FF41;
@@ -79,8 +81,10 @@
 #cm-reglages button.reel b { min-width: 110px; }
 #cm-reglages button.reel.actif b { border-color: #6fa8ff; color: #9ec9ff; text-shadow: 0 0 8px #3c8cff; }
 #cm-reglages small { display: block; margin: 8px 18px 2px; color: #4f8a5c; font-size: 12px; letter-spacing: 0.15em; }
-@media (max-width: 1000px) { #cm-logo .lieu { display: none; } #cm-logo .nom { font-size: 26px; } }
-@media (max-width: 760px) { #cm-logo { left: 12px; height: 52px; } #cm-logo .nom { font-size: 19px; letter-spacing: 0.18em; } #cm-reglages { top: 56px; right: 8px; width: 300px; } #cm-reglages button { font-size: 15px; letter-spacing: 0.06em; padding: 10px 14px; white-space: nowrap; } #cm-reglages button b { min-width: 0 !important; } }
+@media (max-width: 1400px) { #cm-logo .nom { font-size: 23px; letter-spacing: 0.22em; } }
+@media (max-width: 1000px) { #cm-devise { display: none; } #cm-logo { top: 0; height: 64px; } }
+@media (max-width: 760px) { #cm-logo { left: 12px; height: 52px; } #cm-logo .nom { font-size: 19px; letter-spacing: 0.16em; } }
+@media (max-width: 760px) { #cm-reglages { top: 56px; right: 8px; width: 300px; } #cm-reglages button { font-size: 15px; letter-spacing: 0.06em; padding: 10px 14px; white-space: nowrap; } #cm-reglages button b { min-width: 0 !important; } }
 
 /* Agenda */
 #cm-sons button.agenda b { color: #E8FFE8; }
@@ -1262,8 +1266,9 @@ body.cm-neo .goutte { color: #ff2a2a !important; text-shadow: 0 0 8px #ff2a2a !i
   // ================== EN-TÊTE : LOGO, RECHERCHE, RÉGLAGES, BILLETS ==================
   // Le logo ramène à l'accueil, comme sur tous les sites de cinéma
   const logo = doc.createElement('button'); logo.id = 'cm-logo';
-  logo.innerHTML = '<span class="nom">▣ CINÉMANIAK</span><span class="lieu">CINÉMA<br>ANGERS</span>';
+  logo.innerHTML = '<span class="nom">▣ CINÉMANIAK</span>';
   doc.body.appendChild(logo);
+  const devise = doc.createElement('div'); devise.id = 'cm-devise'; devise.textContent = '> LE CINÉ DES FILMS CULTES · ANGERS'; doc.body.appendChild(devise);
   logo.addEventListener('click', () => {
     const accueil = boutonOnglet("À L'AFFICHE");
     if (accueil && accueil.getAttribute('aria-checked') !== 'true') { transition(); accueil.click(); }
